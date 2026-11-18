@@ -1,0 +1,10 @@
+{
+  "name": "ahmed-awedni-game-ui-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive RPG Character Sheet & Game UI Portfolio for Ahmed Awedni — Game Designer & Technical Unity Developer",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}

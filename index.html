@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ahmed Awedni — Game Designer & Technical Unity Developer (RPG HUD Portfolio)</title>
+  <meta name="description" content="Interactive Game UI Portfolio of Ahmed Awedni — Master Game Design @ IIM Paris. Seeking Alternance / Stage Alterné in Game Design, Systems & Balancing, and Technical Unity C# Development." />
+  <meta name="theme-color" content="#07060a" />
+
+  <!-- Google Fonts: Cinzel (Tactical RPG Display), Plus Jakarta Sans (Body), JetBrains Mono (HUD Telemetry) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <!-- Live Project-Reactive Atmosphere Canvas & Full-Screen Shockwave Canvas -->
+  <canvas id="atmosphere-canvas" aria-hidden="true"></canvas>
+  <canvas id="shockwave-canvas" aria-hidden="true"></canvas>
+
+  <!-- ========================================================================
+       TOP TACTICAL TELEMETRY & AUDIO / LANGUAGE HUD BAR
+       ======================================================================== -->
+  <header class="hud-topbar" role="banner">
+    <a href="#hero-character-sheet" class="hud-brand">
+      <div class="hud-crest" aria-hidden="true">AA</div>
+      <div class="hud-brand-text">
+        <span class="hud-brand-name">AHMED AWEDNI</span>
+        <span class="hud-brand-sub" data-i18n="hud.unit_sub">LVL 22 // MASTER GAME DESIGN @ IIM PARIS</span>
+      </div>
+    </a>
+
+    <nav class="hud-nav-center" aria-label="Primary HUD Navigation">
+      <a href="#hero-character-sheet" class="hud-nav-link" data-i18n="hud.nav_hero">Fiche Unité</a>
+      <a href="#quest-log-section" class="hud-nav-link" data-i18n="hud.nav_quests">Journal de Quêtes (5)</a>
+      <a href="#achievements-section" class="hud-nav-link" data-i18n="hud.nav_achievements">Trophées</a>
+      <div class="atmosphere-indicator" title="Dynamic Project-Reactive Atmosphere">
+        <span class="atmosphere-dot"></span>
+        <span data-i18n="hud.atmo_label">Atmosphère :</span>
+        <strong id="active-atmosphere-name" style="color:var(--theme-primary-bright);">Obsidienne & Or Tactique</strong>
+      </div>
+    </nav>
+
+    <div class="hud-controls">
+      <button type="button" id="sfx-toggle-btn" class="hud-btn" aria-pressed="true" title="Toggle UI & ElevenLabs SFX">
+        🔊 SFX: <span class="hud-btn-status">ON</span>
+      </button>
+      <button type="button" id="music-toggle-btn" class="hud-btn" aria-pressed="false" title="Toggle ElevenLabs Tactical Ambient Music">
+        🎵 MUSIC: <span class="hud-btn-status">OFF</span>
+      </button>
+      <button type="button" id="shockwave-lang-btn" class="hud-btn shockwave-lang-btn" aria-label="Switch Language FR / EN with Radial Shockwave">
+        ⚡ <span id="lang-indicator-fr" class="lang-active">FR</span> / <span id="lang-indicator-en" class="lang-inactive">EN</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="hud-main">
+    <!-- ======================================================================
+         1. INTERACTIVE RPG CHARACTER SHEET HERO SECTION
+         ====================================================================== -->
+    <section id="hero-character-sheet" data-project-theme="default" aria-labelledby="hero-section-heading">
+      <div class="section-banner">
+        <div class="section-title-group">
+          <span class="section-eyebrow" data-i18n="hero.eyebrow">// INSPECTION D'UNITÉ JOUABLE — FICHE DE PERSONNAGE RPG</span>
+          <h1 id="hero-section-heading" class="section-title" data-i18n="hero.title">Ahmed Awedni — Game Designer & Technical Designer</h1>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--theme-primary-bright);border:1px solid var(--border-ornate);padding:0.35rem 0.75rem;background:rgba(0,0,0,0.45);">
+          🎮 BUILD v2026.4 // PLAYABLE PORTFOLIO HUD
+        </div>
+      </div>
+
+      <div class="character-sheet-grid">
+        <!-- LEFT COLUMN: CHARACTER AVATAR FRAME, VITALS & ACTIVE BUFFS -->
+        <div class="rpg-panel character-avatar-col">
+          <div id="portrait-inspect-wrapper" class="portrait-inspect-wrapper">
+            <div class="portrait-rarity-bar">
+              <span class="rarity-badge" data-i18n="hero.rarity">★ UNITÉ LÉGENDAIRE</span>
+              <span class="inspect-hint-pill" data-i18n="hero.inspect_hint">SURVOLER POUR SCANNER</span>
+            </div>
+
+            <!-- Pre-wired to /public/assets/avatar.png with inline RPG silhouette fallback -->
+            <img
+              src="/public/assets/avatar.png"
+              alt="Ahmed Awedni — Game Designer & Technical Unity Developer"
+              class="character-portrait-img"
+              onerror="this.style.display='none'; document.getElementById('avatar-fallback-svg').style.display='flex';"
+            />
+            <div id="avatar-fallback-svg" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle,#261e35,#09070e);padding:2rem;text-align:center;">
+              <svg width="110" height="110" viewBox="0 0 100 100" fill="none" stroke="#d4af37" stroke-width="2">
+                <polygon points="50,6 90,26 90,74 50,94 10,74 10,26" fill="rgba(212,175,55,0.1)" />
+                <circle cx="50" cy="40" r="14" />
+                <path d="M24 80 C24 62, 76 62, 76 80" />
+              </svg>
+              <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--theme-primary-bright);margin-top:0.5rem;">/public/assets/avatar.png</span>
+            </div>
+
+            <div class="portrait-inspect-hud" aria-hidden="true"></div>
+
+            <div class="portrait-level-overlay">
+              <span class="level-pill" data-i18n="hero.lvl_badge">LVL 22 — Master Game Design @ IIM Paris</span>
+              <div class="unit-name-display">AHMED AWEDNI</div>
+              <div class="unit-class-subtitle" data-i18n="hero.class_title">Game Designer & Technical Unity Developer</div>
+            </div>
+          </div>
+
+          <!-- Unit Vitals (HP / XP) -->
+          <div class="unit-vitals-box">
+            <div class="vital-row">
+              <strong style="color:#4ade80;">HP</strong>
+              <div class="vital-bar-track"><div class="vital-bar-fill vital-hp" style="width:100%;"></div></div>
+              <span style="text-align:right;color:#4ade80;">100 / 100</span>
+            </div>
+            <div class="vital-row">
+              <strong style="color:var(--theme-primary-bright);">XP</strong>
+              <div class="vital-bar-track"><div class="vital-bar-fill vital-xp" style="width:94%;"></div></div>
+              <span style="text-align:right;color:var(--theme-primary-bright);">9,450 / 10K</span>
+            </div>
+          </div>
+
+          <!-- Active Buff Icons -->
+          <div>
+            <div class="buffs-header" data-i18n="hero.buffs_title" style="margin-bottom:0.45rem;">BUFFS DE RECHERCHE ACTIFS (2026)</div>
+            <div class="buffs-list">
+              <span class="buff-chip" data-i18n="hero.buff1" title="Contrat d'Apprentissage / Professionnalisation / Stage Alterné">⚡ Recherche Alternance / Stage Alterné</span>
+              <span class="buff-chip" data-i18n="hero.buff2" title="Basé en région parisienne — IIM Digital School Paris La Défense">📍 Paris — Île-de-France (Mobilité Totale)</span>
+              <span class="buff-chip" data-i18n="hero.buff3" title="Prêt à rejoindre votre équipe de Game Design ou Prototyping">🎯 Dispo Immédiate — Rythme École/Studio</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: CORE GAME DESIGNER RPG ATTRIBUTES, HEX RADAR & EQUIPPED LOADOUT -->
+        <div class="rpg-panel character-stats-col">
+          <div class="character-sheet-top">
+            <p class="character-lore-quote" data-i18n="hero.lore">
+              Concepteur de systèmes de jeu et développeur Unity C# passionné par <strong>l'équilibrage mathématique</strong>, les <strong>économies d'action asymétriques</strong> et le <strong>Game Feel</strong>. Je transforme des intentions de design complexes en prototypes jouables, lisibles et rigoureusement équilibrés par le playtest.
+            </p>
+          </div>
+
+          <div class="stats-and-radar-grid">
+            <!-- 6 Animated RPG Stat Bars -->
+            <div id="rpg-stats-list" class="rpg-stats-list" role="list" aria-label="Core Game Designer RPG Attributes"></div>
+
+            <!-- 6-Point Hexagonal Radar Chart + Inspect Readout -->
+            <div class="radar-box">
+              <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--theme-primary-bright);letter-spacing:0.08em;margin-bottom:0.35rem;" data-i18n="hero.radar_title">
+                RADAR HEXAGONAL D'ATTRIBUTS
+              </div>
+              <svg id="rpg-radar-svg" class="radar-svg" viewBox="0 0 240 240" aria-label="6-Point Hexagonal Attribute Radar"></svg>
+              <div id="radar-tooltip-readout" class="radar-tooltip-readout" data-i18n="hero.radar_default_tip">
+                Survolez ou cliquez sur l'une des 6 statistiques RPG pour inspecter les preuves de conception et systèmes associés.
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipped Inventory / Loadout Slots (Unity, C#, Aseprite, Blender, Illustrator, GitHub) -->
+          <div class="loadout-section">
+            <div class="loadout-header-row">
+              <span class="loadout-title" data-i18n="hero.loadout_title">INVENTAIRE ÉQUIPÉ & ARSENAL TECHNIQUE (6 SLOTS)</span>
+              <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);" data-i18n="hero.loadout_sub">
+                Cliquez sur un équipement pour inspecter ses bonus de production
+              </span>
+            </div>
+            <div id="loadout-slots-grid" class="loadout-slots-grid"></div>
+            <div id="loadout-tooltip-panel" class="item-tooltip-panel"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         2. QUEST FILTER & THE 5 PROJECT CASE STUDIES
+         ====================================================================== -->
+    <section id="quest-log-section" aria-labelledby="quests-section-heading">
+      <div class="section-banner">
+        <div class="section-title-group">
+          <span class="section-eyebrow" data-i18n="quests.eyebrow">// JOURNAL DE CAMPAGNE — 5 ÉTUDES DE CAS & SIMULATEURS INTERACTIFS</span>
+          <h2 id="quests-section-heading" class="section-title" data-i18n="quests.title">Quêtes Principales & Architecture de Systèmes</h2>
+        </div>
+      </div>
+
+      <!-- Interactive Quest Filter Bar -->
+      <div class="quest-filter-bar" role="toolbar" aria-label="Project Quest Filter">
+        <button type="button" class="quest-filter-btn active" data-quest-filter="all" data-i18n="quests.filter_all">Tous les Projets (5)</button>
+        <button type="button" class="quest-filter-btn" data-quest-filter="tech" data-i18n="quests.filter_tech">Technical Design & Scripting</button>
+        <button type="button" class="quest-filter-btn" data-quest-filter="systems" data-i18n="quests.filter_sys">Systems & Balancing</button>
+        <button type="button" class="quest-filter-btn" data-quest-filter="3cs" data-i18n="quests.filter_3cs">Core Mechanics & 3Cs</button>
+        <button type="button" class="quest-filter-btn" data-quest-filter="world" data-i18n="quests.filter_lwd">Level, World & Narrative</button>
+        <button type="button" class="quest-filter-btn" data-quest-filter="ux" data-i18n="quests.filter_uxg">UX & Game Feel</button>
+      </div>
+
+      <div class="projects-stack">
+        <!-- ==================================================================
+             PROJECT 1: WISE BATTLE (3D Online Multiplayer Tactical RPG & AI Serious Game)
+             ================================================================== -->
+        <article class="quest-card" data-project-theme="wise-battle" data-categories="tech,systems,3cs,ux">
+          <div class="quest-card-header">
+            <div>
+              <span class="quest-number-badge" data-i18n="p1.badge">QUÊTE #01 // RPG TACTIQUE MULTIJOUEUR 3D & IA SERIOUS GAME</span>
+              <h3 class="quest-title" data-i18n="p1.title">Wise Battle</h3>
+            </div>
+            <button type="button" class="sim-btn" data-activate-theme="wise-battle">
+              🌲 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
+            </button>
+          </div>
+
+          <div class="primary-skills-row">
+            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
+            <span class="skill-badge">Systems & Combat Design</span>
+            <span class="skill-badge">Game Balancing</span>
+            <span class="skill-badge">Unity C#</span>
+            <span class="skill-badge">Multiplayer Architecture</span>
+            <span class="skill-badge">Mobile UI/UX</span>
+          </div>
+
+          <div class="metadata-hud-bar">
+            <span class="metadata-hud-item" data-i18n="p1.meta_role"><strong>Rôle :</strong> Co-Auteur GDD, Game Designer & Développeur Unity C#</span>
+            <span class="metadata-hud-item" data-i18n="p1.meta_stack"><strong>Stack :</strong> Unity 3D, C#, Netcode, Gemini API, Blender</span>
+            <span class="metadata-hud-item" data-i18n="p1.meta_scope"><strong>Cadre :</strong> Projet Capstone 4 Mois (CGI Studio) | Mobile Android</span>
+          </div>
+
+          <div class="quest-overview-grid">
+            <div class="quest-pitch-col">
+              <p class="high-concept-pitch" data-i18n="p1.pitch">
+                Un RPG médiéval-fantastique 3D en 1v1 au tour par tour où les joueurs importent n'importe quel cours PDF et utilisent des quiz de rappel actif générés par IA comme unique carburant de leur économie d'énergie de combat.
+              </p>
+
+              <div class="playtest-iteration-box">
+                <div class="playtest-box-title">
+                  <span>🔬</span> <span data-i18n="p1.pdr_title">Journal d'Itération Playtest (Problème → Décision → Résultat)</span>
+                </div>
+                <div class="pdr-steps">
+                  <div class="pdr-step problem">
+                    <span class="pdr-tag">PROBLEM:</span>
+                    <span data-i18n="p1.pdr_prob">Avantage critique du Joueur 1 et joueurs répondant au hasard en 1 seconde pour accumuler de l'énergie.</span>
+                  </div>
+                  <div class="pdr-step decision">
+                    <span class="pdr-tag">DECISION:</span>
+                    <span data-i18n="p1.pdr_dec">Création de la « Règle 30/30 » avec pénalité stricte (-15 Énergie + verrouillage de la phase d'action en cas d'erreur) et ajout du buff d'équilibrage « Second Player Aid » (+15 Énergie au Tour 1 pour le Joueur 2).</span>
+                  </div>
+                  <div class="pdr-step result">
+                    <span class="pdr-tag">RESULT:</span>
+                    <span data-i18n="p1.pdr_res">Taux de victoire J1/J2 stabilisé à 51% / 49% sur 40+ matchs de test ; élimination totale du spam aléatoire.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dedicated Media Showcase Frame -->
+            <div class="media-showcase-frame">
+              <div class="media-frame-topbar">
+                <span data-i18n="p1.media_label">APERÇU TACTIQUE 3D // PRÉ-CÂBLÉ : /public/assets/media/wise-battle.mp4</span>
+                <span style="color:#2ce59b;">● LIVE HUD PREVIEW</span>
+              </div>
+              <div class="media-stage">
+                <video class="media-video-el" src="/public/assets/media/wise-battle.mp4" autoplay loop muted playsinline></video>
+                <div class="media-placeholder-visual">
+                  <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
+                    <rect x="6" y="6" width="248" height="113" stroke="rgba(44,229,155,0.4)" stroke-dasharray="4 4" fill="rgba(12,28,22,0.7)" />
+                    <polygon points="65,88 95,42 125,88" stroke="#2ce59b" stroke-width="2" fill="rgba(44,229,155,0.15)" />
+                    <polygon points="145,88 175,36 205,88" stroke="#d4af37" stroke-width="2" fill="rgba(212,175,55,0.18)" />
+                    <path d="M95,62 Q135,20 175,58" stroke="#f7d665" stroke-width="2" stroke-dasharray="3 3" />
+                    <text x="130" y="24" text-anchor="middle" fill="#2ce59b" font-family="JetBrains Mono" font-size="10">1v1 NETCODE ARENA // 30s QUIZ TIMER</text>
+                    <text x="85" y="106" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="9">P1: GALIOS (100HP)</text>
+                    <text x="175" y="106" text-anchor="middle" fill="#f7d665" font-family="JetBrains Mono" font-size="9">P2: ALERIC (+15E AID)</text>
+                  </svg>
+                  <code class="media-path-code">Drop clip at: /public/assets/media/wise-battle.mp4</code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WISE BATTLE: 2 INTERACTIVE GAME DESIGN ARTIFACTS -->
+          <div class="artifacts-grid">
+            <!-- Artifact A: Interactive "30/30 Rule" Energy Economy & Turn State Machine Simulator -->
+            <div class="artifact-panel">
+              <div class="artifact-header">
+                <div>
+                  <span class="artifact-id-tag">ARTIFACT 01-A // INTERACTIVE STATE MACHINE & ECONOMY SIMULATOR</span>
+                  <h4 class="artifact-title" data-i18n="p1.artA_title">Simulateur Interactif « Règle 30/30 » : Économie d'Énergie & Machine à États</h4>
+                </div>
+                <button type="button" id="wb-reset-sim-btn" class="sim-btn">↺ Reset</button>
+              </div>
+
+              <div class="sim-control-row">
+                <div style="flex:1;min-width:180px;">
+                  <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.74rem;margin-bottom:0.25rem;">
+                    <span>Quiz Answer Speed (T): <strong id="wb-time-val" style="color:var(--theme-primary-bright);">12s</strong></span>
+                    <span>Max Timer: <strong id="wb-max-timer">30s</strong></span>
+                  </div>
+                  <input type="range" id="wb-time-slider" class="sim-slider" min="1" max="30" value="12" aria-label="Quiz Answer Time in Seconds" />
+                </div>
+                <button type="button" id="wb-p2-aid-btn" class="sim-btn" title="Toggle Player 2 Turn 1 Balancing Buff (+15 Energy)">
+                  P2 Aid: OFF (P1 Default)
+                </button>
+              </div>
+
+              <div class="sim-control-row">
+                <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                  <button type="button" class="sim-btn active" data-wb-outcome="correct">✅ Correct (+T_rem E)</button>
+                  <button type="button" class="sim-btn" data-wb-outcome="wrong">❌ Wrong (-15E + Lock)</button>
+                  <button type="button" class="sim-btn" data-wb-outcome="timeout">⏱️ Timeout (0E + Forfeit)</button>
+                </div>
+                <button type="button" id="wb-resolve-quiz-btn" class="sim-btn" style="border-color:#2ce59b;color:#2ce59b;">
+                  ▶ Resolve Phase 1 (Quiz)
+                </button>
+              </div>
+
+              <div class="sim-telemetry-grid">
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">ENERGY DELTA</span>
+                  <span id="wb-delta-val" class="telemetry-val">+18 E</span>
+                </div>
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">ENERGY POOL (MAX 100)</span>
+                  <span id="wb-energy-val" class="telemetry-val">25 / 100 E</span>
+                  <div class="vital-bar-track" style="margin-top:4px;"><div id="wb-energy-bar" class="vital-bar-fill vital-xp" style="width:25%;"></div></div>
+                </div>
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">PHASE 2 STATUS</span>
+                  <span id="wb-phase-state" class="telemetry-val" style="font-size:0.78rem;">ACTION UNLOCKED</span>
+                </div>
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">MATCH TURN CAP</span>
+                  <span id="wb-turn-count" class="telemetry-val">1 / 30</span>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);margin-bottom:0.35rem;">
+                  PHASE 2 — EXECUTE COMBAT ACTION (REQUIRES UNLOCKED ACTION PHASE):
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.45rem;">
+                  <button type="button" class="sim-btn" data-wb-action="attack" data-cost="20">⚔️ Attack (20E)</button>
+                  <button type="button" class="sim-btn" data-wb-action="defend" data-cost="10">🛡️ Defend (10E)</button>
+                  <button type="button" class="sim-btn" data-wb-action="timespell" data-cost="30">⏳ Unique Skill (30E)</button>
+                  <button type="button" class="sim-btn" data-wb-action="pass" data-cost="0">⏭️ Pass (0E)</button>
+                </div>
+              </div>
+
+              <div id="wb-sim-log" style="font-family:var(--font-mono);font-size:0.74rem;padding:0.55rem 0.75rem;background:rgba(0,0,0,0.55);border-left:3px solid #2ce59b;color:var(--text-main);">
+                Turn 1 Ready — Quiz Phase active (Max Timer: 30s).
+              </div>
+            </div>
+
+            <!-- Artifact B: Asymmetric Hero Roster & Architecture Inspector -->
+            <div class="artifact-panel">
+              <div class="artifact-header">
+                <div>
+                  <span class="artifact-id-tag">ARTIFACT 01-B // ASYMMETRIC BALANCING & UNITY C# ARCHITECTURE</span>
+                  <h4 class="artifact-title" data-i18n="p1.artB_title">Inspecteur de Roster Asymétrique & Architecture C# (ScriptableObjects)</h4>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.45rem;">
+                <button type="button" class="sim-btn active" data-wb-hero="galios">🛡️ Galios (Tank)</button>
+                <button type="button" class="sim-btn" data-wb-hero="pokey">🗡️ Pokey (Assassin)</button>
+                <button type="button" class="sim-btn" data-wb-hero="aleric">⏳ Aleric (Mage)</button>
+              </div>
+
+              <div style="background:rgba(0,0,0,0.45);border:1px solid var(--border-subtle);padding:0.85rem;">
+                <div id="wb-hero-title" style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--theme-primary-bright);margin-bottom:0.55rem;">
+                  Galios (The Knight — Attrition Tank)
+                </div>
+                <div class="sim-telemetry-grid" style="margin-bottom:0.65rem;">
+                  <div class="telemetry-cell">
+                    <span class="telemetry-label">MAX HEALTH</span>
+                    <span id="wb-hero-hp" class="telemetry-val">100 HP</span>
+                  </div>
+                  <div class="telemetry-cell">
+                    <span class="telemetry-label">BASIC ATTACK</span>
+                    <span id="wb-hero-atk" class="telemetry-val">25 DMG (20E)</span>
+                  </div>
+                  <div class="telemetry-cell">
+                    <span class="telemetry-label">DEFEND STANCE</span>
+                    <span id="wb-hero-def" class="telemetry-val">15 Shield (10E)</span>
+                  </div>
+                </div>
+                <div style="font-size:0.82rem;margin-bottom:0.4rem;">
+                  <strong style="color:#2ce59b;font-family:var(--font-mono);">UNIQUE SKILL — <span id="wb-hero-skill-name">Shield Slam (50E)</span> :</strong>
+                  <span id="wb-hero-skill-desc">Deals 15 DMG + 50% chance to STUN the enemy, completely forfeiting their next turn.</span>
+                </div>
+                <div id="wb-hero-synergy" style="font-size:0.78rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);padding-top:0.45rem;">
+                  High HP & DEF let Galios bank energy across multiple turns to unleash game-swinging 50E Stun locks.
+                </div>
+              </div>
+
+              <button type="button" id="wb-code-toggle-btn" class="sim-btn" style="width:100%;text-align:center;">
+                Inspect C# ScriptableObject & BaseSkill Architecture ▼
+              </button>
+
+              <pre id="wb-code-drawer" class="code-drawer" hidden><code>[CreateAssetMenu(menuName = "WiseBattle/CharacterDataSO")]
+public class CharacterDataSO : ScriptableObject {
+    public string heroName;
+    public int maxHP = 100;
+    public int baseAttack = 25;   // Costs 20 Energy
+    public int baseDefense = 15;  // Costs 10 Energy
+    public BaseSkillSO uniqueSkill; // Polymorphic SO reference
+}
+
+public abstract class BaseSkillSO : ScriptableObject {
+    public int energyCost;
+    public abstract void Execute(BattleContext ctx);
+}
+
+public class TimeSpellSkillSO : BaseSkillSO {
+    // Aleric (30E): +10s extra quiz timer for 3 turns -> supercharges +T_remaining Energy!
+    public override void Execute(BattleContext ctx) {
+        ctx.ActiveUnit.ApplyStatus(new QuizTimerBonusEffect(bonusSeconds: 10f, durationTurns: 3));
+        ctx.PlayerAnimator.TriggerCast("TimeSpell");
+    }
+}</code></pre>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==================================================================
+             PROJECT 2: NARUTO: THE BOARD GAME (Tactical JRPG Tabletop — 2 to 8 Players)
+             ================================================================== -->
+        <article class="quest-card" data-project-theme="naruto" data-categories="systems,3cs,world">
+          <div class="quest-card-header">
+            <div>
+              <span class="quest-number-badge" data-i18n="p2.badge">QUÊTE #02 // JRPG TACTIQUE SUR PLATEAU & STRATÉGIE TERRITORIALE (2 À 8 JOUEURS)</span>
+              <h3 class="quest-title" data-i18n="p2.title">Naruto: The Board Game</h3>
+            </div>
+            <button type="button" class="sim-btn" data-activate-theme="naruto">
+              🍥 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
+            </button>
+          </div>
+
+          <div class="primary-skills-row">
+            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
+            <span class="skill-badge">Tabletop Systems Design</span>
+            <span class="skill-badge">Rulebook Writing</span>
+            <span class="skill-badge">Economy & Combat Balancing</span>
+            <span class="skill-badge">Board Layout Design</span>
+          </div>
+
+          <div class="metadata-hud-bar">
+            <span class="metadata-hud-item" data-i18n="p2.meta_role"><strong>Rôle :</strong> Solo Game Designer & Graphic Designer</span>
+            <span class="metadata-hud-item" data-i18n="p2.meta_stack"><strong>Outils :</strong> Illustrator, Canva, Équilibrage Tableur</span>
+            <span class="metadata-hud-item" data-i18n="p2.meta_scope"><strong>Tag :</strong> Étude de Systèmes Tabletop Non-Commerciale — Adaptation Fan IP</span>
+          </div>
+
+          <div class="quest-overview-grid">
+            <div class="quest-pitch-col">
+              <p class="high-concept-pitch" data-i18n="p2.pitch">
+                Un JRPG tactique sur plateau au tour par tour pour 2 à 8 joueurs à travers une boucle de 40 cases reliant les Quatre Villages Cachés, mêlant combat d'escouade Shinobi à main cachée, économie de défense territoriale et 3 modes de jeu.
+              </p>
+
+              <div class="playtest-iteration-box">
+                <div class="playtest-box-title">
+                  <span>🔬</span> <span data-i18n="p2.pdr_title">Journal d'Itération Playtest (Problème → Décision → Résultat)</span>
+                </div>
+                <div class="pdr-steps">
+                  <div class="pdr-step problem">
+                    <span class="pdr-tag">PROBLEM:</span>
+                    <span data-i18n="p2.pdr_prob">Effet boule de neige façon Monopoly où le premier acheteur taxait automatiquement tous les joueurs sans contre-jeu tactique, et combats d'usure trop lents.</span>
+                  </div>
+                  <div class="pdr-step decision">
+                    <span class="pdr-tag">DECISION:</span>
+                    <span data-i18n="p2.pdr_dec">Introduction du « Power Check Territorial » (péage payé UNIQUEMENT si Puissance Totale de l'Équipe Active &lt; Défense du Lieu) et du « Full-HP Turn Reset » exigeant des combos explosifs ou passifs létaux.</span>
+                  </div>
+                  <div class="pdr-step result">
+                    <span class="pdr-tag">RESULT:</span>
+                    <span data-i18n="p2.pdr_res">Tension tactique constante : les joueurs adaptent la composition de leur main active (3 max) au tour 1 pour franchir les territoires ennemis.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dedicated Media Showcase Frame -->
+            <div class="media-showcase-frame">
+              <div class="media-frame-topbar">
+                <span data-i18n="p2.media_label">PLATEAU 40 CASES // PRÉ-CÂBLÉ : /public/assets/media/naruto-board-game.mp4</span>
+                <span style="color:#ff6b1a;">● TABLETOP SYSTEM</span>
+              </div>
+              <div class="media-stage">
+                <video class="media-video-el" src="/public/assets/media/naruto-board-game.mp4" autoplay loop muted playsinline></video>
+                <div class="media-placeholder-visual">
+                  <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
+                    <rect x="20" y="10" width="220" height="105" stroke="#ff6b1a" stroke-width="2" fill="rgba(29,12,15,0.8)" />
+                    <rect x="44" y="28" width="172" height="69" stroke="rgba(255,158,68,0.4)" stroke-dasharray="3 3" />
+                    <circle cx="20" cy="10" r="6" fill="#ff9e44" />
+                    <circle cx="240" cy="10" r="6" fill="#ef4444" />
+                    <circle cx="240" cy="115" r="6" fill="#ff9e44" />
+                    <circle cx="20" cy="115" r="6" fill="#ef4444" />
+                    <text x="130" y="55" text-anchor="middle" fill="#ff9e44" font-family="Cinzel" font-weight="700" font-size="11">4 HIDDEN VILLAGES // 40 TILES</text>
+                    <text x="130" y="75" text-anchor="middle" fill="#f2ece1" font-family="JetBrains Mono" font-size="9">ACTIVE PARTY (3) + RESERVE (2)</text>
+                  </svg>
+                  <code class="media-path-code">Drop clip at: /public/assets/media/naruto-board-game.mp4</code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NARUTO: 2 INTERACTIVE GAME DESIGN ARTIFACTS -->
+          <div class="artifacts-grid">
+            <!-- Artifact A: 40-Tile Board Loop & Territory Defense Calculator -->
+            <div class="artifact-panel">
+              <div class="artifact-header">
+                <div>
+                  <span class="artifact-id-tag">ARTIFACT 02-A // 40-TILE TOPOLOGY & TERRITORY POWER CHECK</span>
+                  <h4 class="artifact-title" data-i18n="p2.artA_title">Boucle de Plateau 40 Cases & Calculateur de Défense Territoriale</h4>
+                </div>
+              </div>
+
+              <div class="board-loop-grid" role="group" aria-label="40-Tile Board Key Nodes">
+                <button type="button" class="board-tile-btn active" data-naruto-tile="1">🏁 Tile 1<br/>Start (+SP)</button>
+                <button type="button" class="board-tile-btn" data-naruto-tile="4">🍃 Tile 4<br/>Leaf V1 (35D)</button>
+                <button type="button" class="board-tile-btn" data-naruto-tile="6">🏯 Tiles 6/16/26/36<br/>4 Kage Offices</button>
+                <button type="button" class="board-tile-btn" data-naruto-tile="8">🎴 Tile 8<br/>Shinobi Draw</button>
+                <button type="button" class="board-tile-btn" data-naruto-tile="9">📜 Tile 9<br/>Side Quests (3)</button>
+                <button type="button" class="board-tile-btn" data-naruto-tile="11">👁️ Tiles 11 & 31<br/>Genjutsu Traps</button>
+                <button type="button" class="board-tile-btn" data-naruto-tile="21" style="grid-column: span 2;">🐉 Tile 21 — Legendary Draw (Roll 11+ on 2D6)</button>
+                <button type="button" id="naruto-roll-2d6-btn" class="sim-btn" style="grid-column: span 2;border-color:#ff9e44;color:#ff9e44;">🎲 Roll 2D6 for Tile 21</button>
+              </div>
+
+              <div style="background:rgba(0,0,0,0.5);border-left:3px solid #ff6b1a;padding:0.6rem 0.8rem;font-size:0.8rem;">
+                <strong id="naruto-tile-title" style="color:#ff9e44;display:block;font-family:var(--font-mono);">Tile 1 — Starting Line (Tour Completion)</strong>
+                <span id="naruto-tile-rule" style="color:var(--text-secondary);">Grants +1000 SP (Normal Mode) or +1500 SP (Shinobis War Mode). Unlocks swapping between Active Party (max 3 in hand) and Inactive Party (max 2 reserve).</span>
+                <div id="naruto-2d6-result" style="font-family:var(--font-mono);font-size:0.73rem;margin-top:0.35rem;color:#fbbf24;"></div>
+              </div>
+
+              <div class="sim-control-row" style="flex-direction:column;align-items:stretch;">
+                <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.74rem;">
+                  <span>Hidden Leaf Village 1 (100 SP | <strong>35 DEF</strong>) vs Your Active Party Power:</span>
+                  <strong id="naruto-party-power-val" style="color:#ff9e44;">25 PWR</strong>
+                </div>
+                <input type="range" id="naruto-party-power-slider" class="sim-slider" min="10" max="75" value="25" aria-label="Active Party Total Power" />
+                <div id="naruto-toll-result" style="font-family:var(--font-mono);font-size:0.75rem;font-weight:700;"></div>
+              </div>
+            </div>
+
+            <!-- Artifact B: Blind-Target Party Combat & 3-Mode Balancing Matrix -->
+            <div class="artifact-panel">
+              <div class="artifact-header">
+                <div>
+                  <span class="artifact-id-tag">ARTIFACT 02-B // BLIND-HAND COMBAT & 3-MODE VICTORY MATRIX</span>
+                  <h4 class="artifact-title" data-i18n="p2.artB_title">Simulateur de Combat Aveugle (3 Cartes) & Matrice des 3 Modes de Jeu</h4>
+                </div>
+                <button type="button" id="naruto-reset-cards-btn" class="sim-btn">🔀 Shuffle Hand</button>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-secondary);">
+                  Attacker: <strong>Kakashi's Chidori (60 DMG, 1-Tile)</strong>
+                </span>
+                <button type="button" id="naruto-sakura-passive-btn" class="sim-btn">
+                  Sakura's Healthy Dice Passive: OFF
+                </button>
+              </div>
+
+              <div class="blind-cards-row">
+                <div class="shinobi-card-slot" data-blind-card="0" role="button" tabindex="0"></div>
+                <div class="shinobi-card-slot" data-blind-card="1" role="button" tabindex="0"></div>
+                <div class="shinobi-card-slot" data-blind-card="2" role="button" tabindex="0"></div>
+              </div>
+
+              <div id="naruto-combat-readout" style="font-family:var(--font-mono);font-size:0.72rem;padding:0.5rem 0.7rem;background:rgba(0,0,0,0.45);border-left:3px solid #ff9e44;"></div>
+
+              <div style="overflow-x:auto;">
+                <table class="mode-table">
+                  <thead>
+                    <tr>
+                      <th>Game Mode</th>
+                      <th>Start SP & Roster</th>
+                      <th>Mercy & Special Rules / Win Conditions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Normal Mode</strong></td>
+                      <td>2000 SP | 1 Common</td>
+                      <td>2 Mercies | +1000 SP/Tour | Kage Office or Elimination Win</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Shinobis War</strong></td>
+                      <td>4000 SP | 3 Shinobis</td>
+                      <td>0 Mercy | Round 1 Peace Treaty | +1500 SP/Tour</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Alliance Team</strong></td>
+                      <td>Shared Reserve (2)</td>
+                      <td>1-Tile Downed/Revive (500 SP or 3+ roll) vs Finishing Blow (5+)</td>
+                    </tr>
+                    <tr>
+                      <td colspan="3" style="color:#f87171;">
+                        🌙 <strong>Red Moon Right of Victory (Rare):</strong> Unlock <em>The Masked One (TMO)</em> & channel a 3-round player capture without interruption!
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==================================================================
+             PROJECT 3: MAGIC WORDS (2D Local PvP Wizard Word Duel — itch.io)
+             ================================================================== -->
+        <article class="quest-card" data-project-theme="magic-words" data-categories="tech,systems,3cs">
+          <div class="quest-card-header">
+            <div>
+              <span class="quest-number-badge" data-i18n="p3.badge">QUÊTE #03 // DUEL DE SORCIERS PVP LOCAL 2D — PUBLIÉ SUR ITCH.IO</span>
+              <h3 class="quest-title" data-i18n="p3.title">Magic Words</h3>
+            </div>
+            <button type="button" class="sim-btn" data-activate-theme="magic-words">
+              🔮 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
+            </button>
+          </div>
+
+          <div class="primary-skills-row">
+            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
+            <span class="skill-badge">Combat Balancing</span>
+            <span class="skill-badge">Procedural Systems</span>
+            <span class="skill-badge">Unity C#</span>
+            <span class="skill-badge">2D Pixel Art</span>
+          </div>
+
+          <div class="metadata-hud-bar">
+            <span class="metadata-hud-item" data-i18n="p3.meta_role"><strong>Rôle :</strong> Solo Game Designer, Pixel Artist & Développeur Unity</span>
+            <span class="metadata-hud-item" data-i18n="p3.meta_stack"><strong>Stack :</strong> Unity 2D, C#, Aseprite</span>
+            <span class="metadata-hud-item" data-i18n="p3.meta_scope"><strong>Plateforme :</strong> PC / Web (Publié sur itch.io)</span>
+          </div>
+
+          <div class="quest-overview-grid">
+            <div class="quest-pitch-col">
+              <p class="high-concept-pitch" data-i18n="p3.pitch">
+                Un duel de sorciers 1v1 en multijoueur local pixel-art inspiré de Bookworm Adventures, où les joueurs forgent à tour de rôle des mots anglais de 3+ lettres à partir d'un tirage aléatoire pour lancer des déflagrations magiques ou des soins tactiques.
+              </p>
+
+              <div class="playtest-iteration-box">
+                <div class="playtest-box-title">
+                  <span>🔬</span> <span data-i18n="p3.pdr_title">Journal d'Itération Playtest (Problème → Décision → Résultat)</span>
+                </div>
+                <div class="pdr-steps">
+                  <div class="pdr-step problem">
+                    <span class="pdr-tag">PROBLEM:</span>
+                    <span data-i18n="p3.pdr_prob">Deux problèmes majeurs en playtest : (1) tirages de 9 consonnes rendant le tour injouable, et (2) spam de mots courts de 3 lettres en soin prolongeant les duels indéfiniment.</span>
+                  </div>
+                  <div class="pdr-step decision">
+                    <span class="pdr-tag">DECISION:</span>
+                    <span data-i18n="p3.pdr_dec">Programmation d'un algorithme C# de sac pondéré garantissant 2 à 3 voyelles minimum par tirage, et courbe exponentielle des dégâts d'attaque surclassant le plafond de soin dès 5+ lettres.</span>
+                  </div>
+                  <div class="pdr-step result">
+                    <span class="pdr-tag">RESULT:</span>
+                    <span data-i18n="p3.pdr_res">Zéro tour mort signalé et durée moyenne de duel ramenée de 14 minutes à 5 minutes intenses.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dedicated Media Showcase Frame -->
+            <div class="media-showcase-frame">
+              <div class="media-frame-topbar">
+                <span data-i18n="p3.media_label">ARÈNE PIXEL ART // PRÉ-CÂBLÉ : /public/assets/media/magic-words.mp4</span>
+                <span style="color:#b565ff;">● ITCH.IO RELEASE</span>
+              </div>
+              <div class="media-stage">
+                <video class="media-video-el" src="/public/assets/media/magic-words.mp4" autoplay loop muted playsinline></video>
+                <div class="media-placeholder-visual">
+                  <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
+                    <rect x="10" y="10" width="240" height="105" stroke="#b565ff" stroke-width="2" fill="rgba(23,13,40,0.8)" />
+                    <text x="130" y="42" text-anchor="middle" fill="#5ce1e6" font-family="Cinzel" font-weight="700" font-size="14">[ A ] [ R ] [ C ] [ A ] [ N ] [ E ]</text>
+                    <path d="M55,75 L205,75" stroke="#b565ff" stroke-width="3" stroke-dasharray="6 4" />
+                    <circle cx="48" cy="75" r="12" fill="rgba(181,101,255,0.3)" stroke="#b565ff" stroke-width="2" />
+                    <circle cx="212" cy="75" r="12" fill="rgba(92,225,230,0.3)" stroke="#5ce1e6" stroke-width="2" />
+                    <text x="130" y="102" text-anchor="middle" fill="#f2ece1" font-family="JetBrains Mono" font-size="9">6-LETTER SPELL: 48 DMG BLAST vs 22 HP HEAL</text>
+                  </svg>
+                  <code class="media-path-code">Drop clip at: /public/assets/media/magic-words.mp4</code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MAGIC WORDS: 2 INTERACTIVE GAME DESIGN ARTIFACTS -->
+          <div class="artifacts-grid">
+            <!-- Artifact A: Word-Length Damage vs. Heal Scaling Simulator -->
+            <div class="artifact-panel">
+              <div class="artifact-header">
+                <div>
+                  <span class="artifact-id-tag">ARTIFACT 03-A // ANTI-STALL COMBAT CURVE SIMULATOR</span>
+                  <h4 class="artifact-title" data-i18n="p3.artA_title">Simulateur de Courbe : Dégâts d'Attaque vs Soin selon la Longueur du Mot</h4>
+                </div>
+              </div>
+
+              <div class="sim-control-row" style="flex-direction:column;align-items:stretch;">
+                <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.75rem;">
+                  <span>Forged Word Length: <strong id="mw-length-val" style="color:#5ce1e6;">5 Letters</strong></span>
+                  <span>Example Spell: <strong id="mw-sample-word" style="color:#b565ff;">"FLAME"</strong></span>
+                </div>
+                <input type="range" id="mw-length-slider" class="sim-slider" min="3" max="8" value="5" aria-label="Word Length (3 to 8+ letters)" />
+              </div>
+
+              <div class="sim-telemetry-grid">
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">ATTACK BLAST DMG</span>
+                  <span id="mw-atk-val" class="telemetry-val" style="color:#b565ff;">32 DMG</span>
+                </div>
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">TACTICAL SELF-HEAL</span>
+                  <span id="mw-heal-val" class="telemetry-val" style="color:#4ade80;">+18 HP</span>
+                </div>
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">OFFENSE / HEAL RATIO</span>
+                  <span id="mw-ratio-val" class="telemetry-val" style="color:#5ce1e6;">1.78× Offense</span>
+                </div>
+              </div>
+
+              <!-- SVG Dual Scaling Curve -->
+              <svg width="100%" height="115" viewBox="0 0 300 115" style="background:rgba(0,0,0,0.45);border:1px solid var(--border-subtle);">
+                <!-- Grid lines -->
+                <line x1="30" y1="95" x2="275" y2="95" stroke="rgba(255,255,255,0.15)" />
+                <!-- Attack Curve (Exponential) -->
+                <polyline fill="none" stroke="#b565ff" stroke-width="3" points="30,85 78,78 126,66 174,50 222,30 270,12" />
+                <!-- Heal Curve (Diminishing Returns Cap) -->
+                <polyline fill="none" stroke="#4ade80" stroke-width="2.5" stroke-dasharray="4 3" points="30,88 78,84 126,80 174,76 222,73 270,70" />
+                <!-- Active Length Marker -->
+                <line id="mw-svg-marker" x1="126" y1="8" x2="126" y2="95" stroke="#5ce1e6" stroke-width="1.5" stroke-dasharray="2 2" />
+                <text x="35" y="22" fill="#b565ff" font-family="JetBrains Mono" font-size="9" font-weight="700">— Attack DMG (Quadratic)</text>
+                <text x="35" y="36" fill="#4ade80" font-family="JetBrains Mono" font-size="9">-- Self-Heal (Capped Slope)</text>
+              </svg>
+
+              <div id="mw-scaling-note" style="font-size:0.78rem;color:var(--text-secondary);"></div>
+            </div>
+
+            <!-- Artifact B: Vowel-Guaranteed Letter Pool Algorithm -->
+            <div class="artifact-panel">
+              <div class="artifact-header">
+                <div>
+                  <span class="artifact-id-tag">ARTIFACT 03-B // PROCEDURAL LETTER BAG & CONSONANT-DROUGHT PREVENTION</span>
+                  <h4 class="artifact-title" data-i18n="p3.artB_title">Algorithme de Tirage à Voyelles Garanties & Logique C#</h4>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                <button type="button" id="mw-roll-guaranteed-btn" class="sim-btn active">
+                  ✨ Roll Vowel-Guaranteed Rack (2–3 Vowels)
+                </button>
+                <button type="button" id="mw-roll-naive-btn" class="sim-btn">
+                  ⚠️ Simulate Naive RNG Drought
+                </button>
+              </div>
+
+              <div id="mw-letter-pool-grid" class="letter-pool-grid" aria-label="9-Tile Wizard Letter Rack"></div>
+
+              <div id="mw-pool-status" style="font-family:var(--font-mono);font-size:0.74rem;font-weight:700;"></div>
+
+              <pre class="code-drawer"><code>public List&lt;char&gt; GenerateBalancedRack(int rackSize = 9) {
+    var rack = new List&lt;char&gt;(rackSize);
+    int guaranteedVowels = Random.Range(2, 4); // Enforces 2-3 Vowels minimum
+    while (rack.Count &lt; guaranteedVowels)
+        rack.Add(DrawWithDuplicateCap(VowelBag, rack, maxDupes: 2));
+    while (rack.Count &lt; rackSize)
+        rack.Add(DrawWithDuplicateCap(ConsonantBag, rack, maxDupes: 2));
+    return Shuffle(rack); // Zero dead turns in 100% of PvP rounds
+}</code></pre>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==================================================================
+             PROJECT 4: BALLOON OF THE COUNTRIES (2D Turn-Based Mobile Geography)
+             ================================================================== -->
+        <article class="quest-card" data-project-theme="balloon" data-categories="3cs,ux,systems">
+          <div class="quest-card-header">
+            <div>
+              <span class="quest-number-badge" data-i18n="p4.badge">QUÊTE #04 // JEU DE GÉOGRAPHIE MOBILE AU TOUR PAR TOUR 2D — PUBLIÉ SUR ITCH.IO</span>
+              <h3 class="quest-title" data-i18n="p4.title">Balloon of the Countries</h3>
+            </div>
+            <button type="button" class="sim-btn" data-activate-theme="balloon">
+              🎈 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
+            </button>
+          </div>
+
+          <div class="primary-skills-row">
+            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
+            <span class="skill-badge">Mobile UI/UX</span>
+            <span class="skill-badge">Turn-Based Pacing</span>
+            <span class="skill-badge">Progression Design</span>
+            <span class="skill-badge">2D Game Art</span>
+          </div>
+
+          <div class="metadata-hud-bar">
+            <span class="metadata-hud-item" data-i18n="p4.meta_role"><strong>Rôle :</strong> Solo Game Designer & Développeur Unity</span>
+            <span class="metadata-hud-item" data-i18n="p4.meta_stack"><strong>Stack :</strong> Unity 2D, C#, Aseprite, Illustrator</span>
+            <span class="metadata-hud-item" data-i18n="p4.meta_scope"><strong>Plateforme :</strong> Mobile / itch.io</span>
+          </div>
+
+          <div class="quest-overview-grid">
+            <div class="quest-pitch-col">
+              <p class="high-concept-pitch" data-i18n="p4.pitch">
+                Un jeu 2D vibrant de géographie et de stratégie au tour par tour en multijoueur local (Pass-and-Play), conçu pour des sessions mobiles rapides et publié sur itch.io.
+              </p>
+
+              <div class="playtest-iteration-box">
+                <div class="playtest-box-title">
+                  <span>🔬</span> <span data-i18n="p4.pdr_title">Journal d'Itération Playtest (Problème → Décision → Résultat)</span>
+                </div>
+                <div class="pdr-steps">
+                  <div class="pdr-step problem">
+                    <span class="pdr-tag">PROBLEM:</span>
+                    <span data-i18n="p4.pdr_prob">Confusion lors du passage du téléphone entre joueurs : double HUD encombré et clics accidentels pendant la transition de tour.</span>
+                  </div>
+                  <div class="pdr-step decision">
+                    <span class="pdr-tag">DECISION:</span>
+                    <span data-i18n="p4.pdr_dec">Refonte complète vers un HUD Pass-and-Play à écran unique avec écran intercalaire de relais, indicateurs de tour codés par couleur et contrôles regroupés dans la zone du pouce.</span>
+                  </div>
+                  <div class="pdr-step result">
+                    <span class="pdr-tag">RESULT:</span>
+                    <span data-i18n="p4.pdr_res">Transitions de tour 2× plus rapides sur mobile et suppression totale des erreurs de saisie entre joueurs.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dedicated Media Showcase Frame -->
+            <div class="media-showcase-frame">
+              <div class="media-frame-topbar">
+                <span data-i18n="p4.media_label">HUD MOBILE 2D // PRÉ-CÂBLÉ : /public/assets/media/balloon-countries.mp4</span>
+                <span style="color:#38bdf8;">● MOBILE PASS & PLAY</span>
+              </div>
+              <div class="media-stage">
+                <video class="media-video-el" src="/public/assets/media/balloon-countries.mp4" autoplay loop muted playsinline></video>
+                <div class="media-placeholder-visual">
+                  <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
+                    <rect x="10" y="10" width="240" height="105" stroke="#38bdf8" stroke-width="2" fill="rgba(11,28,48,0.8)" />
+                    <circle cx="95" cy="52" r="18" fill="rgba(244,185,66,0.25)" stroke="#f4b942" stroke-width="2" />
+                    <path d="M95,70 L95,86" stroke="#f4b942" stroke-width="2" />
+                    <path d="M135,45 Q170,30 205,50" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 3" />
+                    <text x="130" y="104" text-anchor="middle" fill="#e0f2fe" font-family="JetBrains Mono" font-size="9">PASS-AND-PLAY MOBILE GEOGRAPHY STRATEGY</text>
+                  </svg>
+                  <code class="media-path-code">Drop clip at: /public/assets/media/balloon-countries.mp4</code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BALLOON OF THE COUNTRIES: 2 INTERACTIVE GAME DESIGN ARTIFACTS -->
+          <div class="artifacts-grid">
+            <!-- Artifact A: One-Screen Pass-and-Play UI Wireframe — Before vs. After -->
+            <div class="artifact-panel">
+              <div class="artifact-header">
+                <div>
+                  <span class="artifact-id-tag">ARTIFACT 04-A // MOBILE ERGONOMICS & THUMB-ZONE REDESIGN</span>
+                  <h4 class="artifact-title" data-i18n="p4.artA_title">Wireframe UI Pass-and-Play à Un Écran — Comparateur Avant vs Après</h4>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:0.5rem;">
+                <button type="button" id="bal-wire-before-btn" class="sim-btn">❌ Before (Dual-HUD Clutter)</button>
+                <button type="button" id="bal-wire-after-btn" class="sim-btn active">✅ After (Ergonomic Single-HUD)</button>
+              </div>
+
+              <div id="bal-wireframe-stage"></div>
+            </div>
+
+            <!-- Artifact B: Round Escalation & Score Multiplier Curve -->
+            <div class="artifact-panel">
+              <div class="artifact-header">
+                <div>
+                  <span class="artifact-id-tag">ARTIFACT 04-B // PACING & RISK-REWARD SCORE ESCALATION</span>
+                  <h4 class="artifact-title" data-i18n="p4.artB_title">Courbe d'Escalade des Manches & Multiplicateur de Score Risque/Récompense</h4>
+                </div>
+              </div>
+
+              <div class="sim-control-row" style="flex-direction:column;align-items:stretch;">
+                <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.75rem;">
+                  <span>Simulate Match Progression:</span>
+                  <strong id="bal-round-val" style="color:#38bdf8;">Round 4 / 10</strong>
+                </div>
+                <input type="range" id="bal-round-slider" class="sim-slider" min="1" max="10" value="4" aria-label="Round Escalation Slider" />
+              </div>
+
+              <div class="sim-telemetry-grid">
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">SCORE MULTIPLIER</span>
+                  <span id="bal-mult-val" class="telemetry-val" style="color:#f4b942;">2.05×</span>
+                </div>
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">WIND DRIFT HAZARD</span>
+                  <span id="bal-wind-val" class="telemetry-val" style="color:#38bdf8;">28 kt Wind</span>
+                </div>
+                <div class="telemetry-cell">
+                  <span class="telemetry-label">BULLSEYE REWARD</span>
+                  <span id="bal-score-val" class="telemetry-val" style="color:#4ade80;">+513 PTS</span>
+                </div>
+              </div>
+
+              <svg width="100%" height="90" viewBox="0 0 300 90" style="background:rgba(0,0,0,0.45);border:1px solid var(--border-subtle);">
+                <polyline fill="none" stroke="#f4b942" stroke-width="2.5" points="20,76 50,69 80,62 110,54 140,46 170,38 200,30 230,22 260,15 285,9" />
+                <text x="26" y="22" fill="#f4b942" font-family="JetBrains Mono" font-size="9">Risk-Reward Multiplier Escalation (R1 → R10)</text>
+              </svg>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==================================================================
+             PROJECT 5: [LOCKED QUEST SLOT #05 — Incoming Playable 2D Prototype]
+             ================================================================== -->
+        <article id="quest-slot-05-mount" class="quest-card locked-quest-card" data-project-theme="locked-slot" data-categories="world,tech,3cs">
+          <div class="quest-card-header">
+            <div>
+              <span class="quest-number-badge" style="border-color:#10b981;color:#6ee7b7;" data-i18n="p5.badge">
+                QUÊTE #05 // EMPLACEMENT DE QUÊTE VERROUILLÉ — PROTOTYPE JOUABLE EN APPROCHE
+              </span>
+              <h3 class="quest-title" data-i18n="p5.title">[LOCKED QUEST SLOT #05 — Incoming Playable 2D Prototype]</h3>
+            </div>
+            <button type="button" class="sim-btn" data-activate-theme="locked-slot" style="border-color:#10b981;color:#6ee7b7;">
+              🔐 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
+            </button>
+          </div>
+
+          <div class="primary-skills-row">
+            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
+            <span class="skill-badge" style="border-color:#10b981;">Level Design</span>
+            <span class="skill-badge" style="border-color:#10b981;">AI Behavior</span>
+            <span class="skill-badge" style="border-color:#10b981;">Narrative Design</span>
+            <span class="skill-badge" style="border-color:#10b981;">Rapid Prototyping</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:auto 1fr auto;gap:1.5rem;align-items:center;background:rgba(0,0,0,0.55);border:1px solid rgba(16,185,129,0.4);padding:1.35rem;flex-wrap:wrap;">
+            <div style="width:72px;height:72px;border:2px solid #10b981;display:grid;place-items:center;background:rgba(16,185,129,0.1);box-shadow:0 0 24px rgba(16,185,129,0.3);">
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2">
+                <rect x="4" y="11" width="16" height="10" rx="2" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                <circle cx="12" cy="16" r="1.5" fill="#6ee7b7" />
+              </svg>
+            </div>
+
+            <div>
+              <div style="font-family:var(--font-mono);font-size:0.74rem;color:#6ee7b7;margin-bottom:0.3rem;" data-i18n="p5.status">
+                STATUT : HOOK DOM & CANVAS PRÊTS POUR INJECTION LIVE
+              </div>
+              <p style="font-size:0.92rem;color:var(--text-main);" data-i18n="p5.pitch">
+                Emplacement d'extension modulaire pré-câblé pour accueillir le prochain prototype 2D jouable directement dans le navigateur (Level Design, AI Behavior, Narrative Design & Rapid Prototyping).
+              </p>
+              <div id="slot05-telemetry-readout" style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);margin-top:0.4rem;">
+                Mount ID: #playable-prototype-stage // Ready for next step injection.
+              </div>
+            </div>
+
+            <button type="button" id="slot05-scan-btn" class="sim-btn" style="border-color:#10b981;color:#6ee7b7;">
+              📡 <span data-i18n="p5.btn_scan">Scanner la Télémétrie du Blueprint #05</span>
+            </button>
+          </div>
+          <!-- Modular code hook for the playable 2D game in the next step -->
+          <div id="playable-prototype-stage" data-prototype-hook="ready" hidden></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         3. UNLOCKED ACHIEVEMENTS ROW (XBOX / STEAM STYLE)
+         ====================================================================== -->
+    <section id="achievements-section" aria-labelledby="achievements-heading">
+      <div class="section-banner">
+        <div class="section-title-group">
+          <span class="section-eyebrow" data-i18n="ach.eyebrow">// VITRINE DE TROPHÉES — SUCCÈS DÉVERROUILLÉS</span>
+          <h2 id="achievements-heading" class="section-title" data-i18n="ach.title">Jalons de Production & Expérience Expédiée</h2>
+        </div>
+      </div>
+
+      <div class="achievements-grid">
+        <!-- Achievement 1: Bubble Trouble -->
+        <div class="achievement-card">
+          <div class="achievement-trophy-icon" aria-hidden="true">🫧</div>
+          <div class="achievement-meta">
+            <span class="achievement-unlock-tag" data-i18n="ach.unlocked">SUCCÈS DÉVERROUILLÉ // GOOGLE PLAY</span>
+            <h3 class="achievement-name" data-i18n="ach.a1_title">Bubble Trouble</h3>
+            <p class="achievement-desc" data-i18n="ach.a1_desc">Premier projet et premier jeu mobile expédié sur le Google Play Store.</p>
+          </div>
+        </div>
+
+        <!-- Achievement 2: Global Game Jam 2026 -->
+        <div class="achievement-card">
+          <div class="achievement-trophy-icon" aria-hidden="true">⚡</div>
+          <div class="achievement-meta">
+            <span class="achievement-unlock-tag" data-i18n="ach.unlocked">SUCCÈS DÉVERROUILLÉ // GGJ 2026</span>
+            <h3 class="achievement-name" data-i18n="ach.a2_title">Global Game Jam 2026</h3>
+            <p class="achievement-desc" data-i18n="ach.a2_desc">Vétéran du prototypage rapide en 48 heures chrono en équipe pluridisciplinaire.</p>
+          </div>
+        </div>
+
+        <!-- Achievement 3: Interactive Systems Inspector -->
+        <div class="achievement-card">
+          <div class="achievement-trophy-icon" aria-hidden="true">🏆</div>
+          <div class="achievement-meta">
+            <span id="ach-inspector-status" class="achievement-unlock-tag" style="color:#fbbf24;">QUÊTE INTERACTIVE // +100 XP</span>
+            <h3 class="achievement-name" data-i18n="ach.a3_title">Inspecteur de Systèmes</h3>
+            <p class="achievement-desc" data-i18n="ach.a3_desc">Interagissez avec un simulateur de Game Design ou copiez l'email recruteur (+100 XP).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating XP Toast Container -->
+  <div id="xp-toast-container" class="xp-toast-container" aria-live="polite"></div>
+
+  <!-- ========================================================================
+       4. STICKY RECRUITER FAST-ACTION DOCK
+       ======================================================================== -->
+  <footer id="recruiter-dock" class="recruiter-dock" role="contentinfo">
+    <div class="dock-status-left">
+      <span class="atmosphere-dot"></span>
+      <span data-i18n="dock.status">PRÊT POUR ENTRETIEN // ALTERNANCE & STAGE ALTERNÉ (PARIS / IDF)</span>
+    </div>
+
+    <div class="dock-actions">
+      <a href="https://github.com/ahmedAwedni" target="_blank" rel="noopener noreferrer" class="dock-action-btn">
+        <span>💻</span> <span>GitHub</span>
+      </a>
+      <a href="/public/assets/Ahmed_Awedni_CV.pdf" download="Ahmed_Awedni_Game_Designer_CV.pdf" class="dock-action-btn">
+        <span>📄</span> <span data-i18n="dock.cv">Télécharger CV (PDF)</span>
+      </a>
+      <a href="https://www.linkedin.com/in/ahmed-awedni/" target="_blank" rel="noopener noreferrer" class="dock-action-btn">
+        <span>🔗</span> <span>LinkedIn</span>
+      </a>
+      <button type="button" id="copy-email-btn" class="dock-action-btn primary-cta">
+        <span>✉️</span> <span data-i18n="dock.copy_email">Copier Email (+100 XP)</span>
+      </button>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
