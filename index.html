@@ -253,16 +253,16 @@
                 <span style="color:#2ce59b;">● LIVE HUD PREVIEW</span>
               </div>
               <div class="media-stage">
-                <video class="media-video-el" src="/public/assets/media/wise-battle.mp4" autoplay loop muted playsinline></video>
+                <video class="media-video-el" data-video-src="/public/assets/media/wise-battle.mp4" autoplay loop muted playsinline></video>
                 <div class="media-placeholder-visual">
                   <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
                     <rect x="6" y="6" width="248" height="113" stroke="rgba(44,229,155,0.4)" stroke-dasharray="4 4" fill="rgba(12,28,22,0.7)" />
-                    <polygon points="65,88 95,42 125,88" stroke="#2ce59b" stroke-width="2" fill="rgba(44,229,155,0.15)" />
-                    <polygon points="145,88 175,36 205,88" stroke="#d4af37" stroke-width="2" fill="rgba(212,175,55,0.18)" />
-                    <path d="M95,62 Q135,20 175,58" stroke="#f7d665" stroke-width="2" stroke-dasharray="3 3" />
-                    <text x="130" y="24" text-anchor="middle" fill="#2ce59b" font-family="JetBrains Mono" font-size="10">1v1 NETCODE ARENA // 30s QUIZ TIMER</text>
-                    <text x="85" y="106" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="9">P1: GALIOS (100HP)</text>
-                    <text x="175" y="106" text-anchor="middle" fill="#f7d665" font-family="JetBrains Mono" font-size="9">P2: ALERIC (+15E AID)</text>
+                    <polygon points="48,86 72,42 96,86" stroke="#2ce59b" stroke-width="2" fill="rgba(44,229,155,0.15)" />
+                    <polygon points="164,86 188,36 212,86" stroke="#d4af37" stroke-width="2" fill="rgba(212,175,55,0.18)" />
+                    <path d="M72,60 Q130,20 188,56" stroke="#f7d665" stroke-width="2" stroke-dasharray="3 3" />
+                    <text x="130" y="24" text-anchor="middle" fill="#2ce59b" font-family="JetBrains Mono" font-size="9.5">1v1 NETCODE ARENA // 30s QUIZ TIMER</text>
+                    <text x="68" y="106" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="8.5">P1: GALIOS (100HP)</text>
+                    <text x="192" y="106" text-anchor="middle" fill="#f7d665" font-family="JetBrains Mono" font-size="8.5">P2: ALERIC (+15E)</text>
                   </svg>
                   <code class="media-path-code">Drop clip at: /public/assets/media/wise-battle.mp4</code>
                 </div>
@@ -330,7 +330,7 @@
                 <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);margin-bottom:0.35rem;">
                   PHASE 2 — EXECUTE COMBAT ACTION (REQUIRES UNLOCKED ACTION PHASE):
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.45rem;">
+                <div class="wb-actions-grid">
                   <button type="button" class="sim-btn" data-wb-action="attack" data-cost="20">⚔️ Attack (20E)</button>
                   <button type="button" class="sim-btn" data-wb-action="defend" data-cost="10">🛡️ Defend (10E)</button>
                   <button type="button" class="sim-btn" data-wb-action="timespell" data-cost="30">⏳ Unique Skill (30E)</button>
@@ -476,7 +476,7 @@ public class TimeSpellSkillSO : BaseSkillSO {
                 <span style="color:#ff6b1a;">● TABLETOP SYSTEM</span>
               </div>
               <div class="media-stage">
-                <video class="media-video-el" src="/public/assets/media/naruto-board-game.mp4" autoplay loop muted playsinline></video>
+                <video class="media-video-el" data-video-src="/public/assets/media/naruto-board-game.mp4" autoplay loop muted playsinline></video>
                 <div class="media-placeholder-visual">
                   <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
                     <rect x="20" y="10" width="220" height="105" stroke="#ff6b1a" stroke-width="2" fill="rgba(29,12,15,0.8)" />
@@ -658,7 +658,7 @@ public class TimeSpellSkillSO : BaseSkillSO {
                 <span style="color:#b565ff;">● ITCH.IO RELEASE</span>
               </div>
               <div class="media-stage">
-                <video class="media-video-el" src="/public/assets/media/magic-words.mp4" autoplay loop muted playsinline></video>
+                <video class="media-video-el" data-video-src="/public/assets/media/magic-words.mp4" autoplay loop muted playsinline></video>
                 <div class="media-placeholder-visual">
                   <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
                     <rect x="10" y="10" width="240" height="105" stroke="#b565ff" stroke-width="2" fill="rgba(23,13,40,0.8)" />
@@ -822,7 +822,7 @@ public class TimeSpellSkillSO : BaseSkillSO {
                 <span style="color:#38bdf8;">● MOBILE PASS & PLAY</span>
               </div>
               <div class="media-stage">
-                <video class="media-video-el" src="/public/assets/media/balloon-countries.mp4" autoplay loop muted playsinline></video>
+                <video class="media-video-el" data-video-src="/public/assets/media/balloon-countries.mp4" autoplay loop muted playsinline></video>
                 <div class="media-placeholder-visual">
                   <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
                     <rect x="10" y="10" width="240" height="105" stroke="#38bdf8" stroke-width="2" fill="rgba(11,28,48,0.8)" />
@@ -920,7 +920,7 @@ public class TimeSpellSkillSO : BaseSkillSO {
             <span class="skill-badge" style="border-color:#10b981;">Rapid Prototyping</span>
           </div>
 
-          <div style="display:grid;grid-template-columns:auto 1fr auto;gap:1.5rem;align-items:center;background:rgba(0,0,0,0.55);border:1px solid rgba(16,185,129,0.4);padding:1.35rem;flex-wrap:wrap;">
+          <div class="slot05-inner-grid">
             <div style="width:72px;height:72px;border:2px solid #10b981;display:grid;place-items:center;background:rgba(16,185,129,0.1);box-shadow:0 0 24px rgba(16,185,129,0.3);">
               <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2">
                 <rect x="4" y="11" width="16" height="10" rx="2" />
@@ -1013,13 +1013,13 @@ public class TimeSpellSkillSO : BaseSkillSO {
         <span>💻</span> <span>GitHub</span>
       </a>
       <a href="/public/assets/Ahmed_Awedni_CV.pdf" download="Ahmed_Awedni_Game_Designer_CV.pdf" class="dock-action-btn">
-        <span>📄</span> <span data-i18n="dock.cv">Télécharger CV (PDF)</span>
+        <span>📄</span> <span data-i18n="dock.cv">CV (PDF)</span>
       </a>
       <a href="https://www.linkedin.com/in/ahmed-awedni/" target="_blank" rel="noopener noreferrer" class="dock-action-btn">
         <span>🔗</span> <span>LinkedIn</span>
       </a>
       <button type="button" id="copy-email-btn" class="dock-action-btn primary-cta">
-        <span>✉️</span> <span data-i18n="dock.copy_email">Copier Email (+100 XP)</span>
+        <span>✉️</span> <span data-i18n="dock.copy_email">Email (+100 XP)</span>
       </button>
     </div>
   </footer>

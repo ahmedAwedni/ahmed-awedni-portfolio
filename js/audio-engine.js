@@ -12,23 +12,22 @@ class GameAudioEngine {
     this.musicEnabled = localStorage.getItem('ahmed_hud_music') === 'true';
 
     this.shockwaveAudio = new Audio();
-    this.shockwaveAudio.crossOrigin = 'anonymous';
-    this.shockwaveAudio.preload = 'auto';
-    this.shockwaveAudio.src = ELEVENLABS_AUDIO.shockwaveUrl;
+    this.shockwaveAudio.preload = 'none';
+    this.shockwaveAudio.src = ELEVENLABS_AUDIO.localShockwaveUrl;
     this.shockwaveAudio.addEventListener('error', () => {
-      if (this.shockwaveAudio.src !== location.origin + ELEVENLABS_AUDIO.localShockwaveUrl) {
-        this.shockwaveAudio.src = ELEVENLABS_AUDIO.localShockwaveUrl;
+      if (this.shockwaveAudio.src !== ELEVENLABS_AUDIO.shockwaveUrl) {
+        this.shockwaveAudio.src = ELEVENLABS_AUDIO.shockwaveUrl;
       }
     });
 
     this.bgmAudio = new Audio();
-    this.bgmAudio.crossOrigin = 'anonymous';
+    this.bgmAudio.preload = 'none';
     this.bgmAudio.loop = true;
     this.bgmAudio.volume = 0.28;
-    this.bgmAudio.src = ELEVENLABS_AUDIO.bgmUrl;
+    this.bgmAudio.src = ELEVENLABS_AUDIO.localBgmUrl;
     this.bgmAudio.addEventListener('error', () => {
-      if (this.bgmAudio.src !== location.origin + ELEVENLABS_AUDIO.localBgmUrl) {
-        this.bgmAudio.src = ELEVENLABS_AUDIO.localBgmUrl;
+      if (this.bgmAudio.src !== ELEVENLABS_AUDIO.bgmUrl) {
+        this.bgmAudio.src = ELEVENLABS_AUDIO.bgmUrl;
       }
     });
 

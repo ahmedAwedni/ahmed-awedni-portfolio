@@ -143,12 +143,12 @@ export const TRANSLATIONS = {
     "hud.nav_quests": "Journal de Quêtes (5)",
     "hud.nav_achievements": "Trophées",
     "hud.atmo_label": "Atmosphère :",
-    "hud.atmo_default": "Obsidienne & Or Tactique",
-    "hud.atmo_wise-battle": "Wise Battle — Forêt Médiévale & Arcane",
-    "hud.atmo_naruto": "Naruto — Parchemin Cramoisi & Chakra",
-    "hud.atmo_magic-words": "Magic Words — Violet Runique",
-    "hud.atmo_balloon": "Balloon — Azur Céleste & Vent",
-    "hud.atmo_locked-slot": "Slot #05 — Blueprint Émeraude",
+    "hud.atmo_default": "Obsidienne & Or",
+    "hud.atmo_wise-battle": "Wise Battle (Médiéval)",
+    "hud.atmo_naruto": "Naruto (Chakra)",
+    "hud.atmo_magic-words": "Magic Words (Runes)",
+    "hud.atmo_balloon": "Balloon (Azur)",
+    "hud.atmo_locked-slot": "Slot #05 (Blueprint)",
 
     "hero.eyebrow": "// INSPECTION D'UNITÉ JOUABLE — FICHE DE PERSONNAGE RPG",
     "hero.title": "Ahmed Awedni — Game Designer & Technical Designer",
@@ -257,8 +257,8 @@ export const TRANSLATIONS = {
 
     /* RECRUITER DOCK */
     "dock.status": "PRÊT POUR ENTRETIEN // ALTERNANCE & STAGE ALTERNÉ (PARIS / IDF)",
-    "dock.cv": "Télécharger CV (PDF)",
-    "dock.copy_email": "Copier Email (+100 XP)",
+    "dock.cv": "CV (PDF)",
+    "dock.copy_email": "Email +100XP",
     "dock.toast_email": "+100 XP — Email copié : ahmed.awadni.jr@gmail.com !"
   },
 
@@ -268,12 +268,12 @@ export const TRANSLATIONS = {
     "hud.nav_quests": "Quest Log (5)",
     "hud.nav_achievements": "Achievements",
     "hud.atmo_label": "Atmosphere:",
-    "hud.atmo_default": "Obsidian & Tactical Gold",
-    "hud.atmo_wise-battle": "Wise Battle — Medieval Forest & Arcane",
-    "hud.atmo_naruto": "Naruto — Shinobi Crimson & Chakra",
-    "hud.atmo_magic-words": "Magic Words — Arcane Runic Violet",
-    "hud.atmo_balloon": "Balloon — Sky Azure & Wind",
-    "hud.atmo_locked-slot": "Slot #05 — Emerald Blueprint",
+    "hud.atmo_default": "Obsidian & Gold",
+    "hud.atmo_wise-battle": "Wise Battle (Forest)",
+    "hud.atmo_naruto": "Naruto (Chakra)",
+    "hud.atmo_magic-words": "Magic Words (Runes)",
+    "hud.atmo_balloon": "Balloon (Sky Azure)",
+    "hud.atmo_locked-slot": "Slot #05 (Blueprint)",
 
     "hero.eyebrow": "// PLAYABLE UNIT INSPECT — INTERACTIVE RPG CHARACTER SHEET",
     "hero.title": "Ahmed Awedni — Game Designer & Technical Designer",
@@ -382,8 +382,8 @@ export const TRANSLATIONS = {
 
     /* RECRUITER DOCK */
     "dock.status": "READY FOR INTERVIEW // SEEKING ALTERNANCE & STAGE ALTERNÉ (PARIS / IDF)",
-    "dock.cv": "Download CV (PDF)",
-    "dock.copy_email": "Copy Email (+100 XP)",
+    "dock.cv": "CV (PDF)",
+    "dock.copy_email": "Email +100XP",
     "dock.toast_email": "+100 XP — Email Copied: ahmed.awadni.jr@gmail.com!"
   }
 };

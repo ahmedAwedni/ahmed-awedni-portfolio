@@ -76,11 +76,15 @@ class PortfolioHUDApp {
       document.documentElement.lang = this.lang;
 
       this.atmosphere.triggerShockwave(originX, originY);
+      this.spawnDomShockwaveRing(originX, originY);
       audioEngine.playShockwavePulse();
 
       this.applyTranslations(true);
       this.renderRpgStatsAndRadar();
       this.renderLoadoutSlots();
+      if (this.inspectorAchievementUnlocked) {
+        this.markInspectorAchievementVisual();
+      }
     });
 
     updateAudioButtons();
@@ -89,6 +93,15 @@ class PortfolioHUDApp {
     document.querySelectorAll('.hud-btn, .quest-filter-btn, .dock-action-btn, .item-slot').forEach((el) => {
       el.addEventListener('mouseenter', () => audioEngine.playHoverTick());
     });
+  }
+
+  spawnDomShockwaveRing(x, y) {
+    const ring = document.createElement('div');
+    ring.className = 'shockwave-dom-ring';
+    ring.style.left = `${x}px`;
+    ring.style.top = `${y}px`;
+    document.body.appendChild(ring);
+    setTimeout(() => ring.remove(), 750);
   }
 
   /* ==========================================================================
@@ -360,13 +373,23 @@ class PortfolioHUDApp {
      6. PRE-WIRED LOCAL MEDIA SHOWCASE FRAMES
      ========================================================================== */
   initMediaShowcases() {
-    document.querySelectorAll('.media-video-el').forEach((videoEl) => {
-      videoEl.addEventListener('loadeddata', () => {
-        videoEl.classList.add('loaded');
-        const placeholder = videoEl.parentElement?.querySelector('.media-placeholder-visual');
-        if (placeholder) placeholder.style.display = 'none';
-      });
-    });
+    fetch('/public/assets/media/manifest.json')
+      .then((res) => (res.ok ? res.json() : { availableMedia: [] }))
+      .then((data) => {
+        const list = Array.isArray(data.availableMedia) ? data.availableMedia : [];
+        document.querySelectorAll('.media-video-el').forEach((videoEl) => {
+          const src = videoEl.getAttribute('data-video-src');
+          if (src && list.includes(src)) {
+            videoEl.src = src;
+            videoEl.addEventListener('loadeddata', () => {
+              videoEl.classList.add('loaded');
+              const placeholder = videoEl.parentElement?.querySelector('.media-placeholder-visual');
+              if (placeholder) placeholder.style.display = 'none';
+            });
+          }
+        });
+      })
+      .catch(() => {});
   }
 
   /* ==========================================================================
