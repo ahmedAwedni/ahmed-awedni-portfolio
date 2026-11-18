@@ -5,9 +5,9 @@
 
 export const ELEVENLABS_AUDIO = {
   shockwaveUrl: "https://elevenlabsusercontent.com/database/workspace/6c2ddac69dc0473eae69f2f66242af49/content_generation/bpslQVPmblMVfaL8dzI0/bjybnf1RxPzoX1cIgT61/content.mp3?Expires=1794988800&KeyName=assets-cdn-key-1&Signature=L8Io9opsCmvuBcS33KGpdLAb5jY=",
-  localShockwaveUrl: "/public/assets/audio/shockwave.mp3",
+  localShockwaveUrl: "public/assets/audio/shockwave.mp3",
   bgmUrl: "https://elevenlabsusercontent.com/database/workspace/6c2ddac69dc0473eae69f2f66242af49/content_generation/z6AZd3hZJFaCTrEIRcDy/gnNYXsnRL4uD35fq8yAI/content.mp3?Expires=1794988800&KeyName=assets-cdn-key-1&Signature=lcxluYYSlMF7GcoKc0K8l92U4CU=",
-  localBgmUrl: "/public/assets/audio/bgm-theme.mp3"
+  localBgmUrl: "public/assets/audio/bgm-theme.mp3"
 };
 
 export const RPG_STATS = [

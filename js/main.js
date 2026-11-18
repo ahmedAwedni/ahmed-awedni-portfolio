@@ -373,7 +373,7 @@ class PortfolioHUDApp {
      6. PRE-WIRED LOCAL MEDIA SHOWCASE FRAMES
      ========================================================================== */
   initMediaShowcases() {
-    fetch('/public/assets/media/manifest.json')
+    fetch('public/assets/media/manifest.json')
       .then((res) => (res.ok ? res.json() : { availableMedia: [] }))
       .then((data) => {
         const list = Array.isArray(data.availableMedia) ? data.availableMedia : [];
