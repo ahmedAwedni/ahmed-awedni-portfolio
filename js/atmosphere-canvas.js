@@ -1,270 +1,263 @@
 /* ============================================================================
-   DYNAMIC PROJECT-REACTIVE ATMOSPHERE ENGINE & RADIAL SHOCKWAVE RENDERER
-   60fps HTML5 Canvas Particle + Grid + Rune System
+   ATMOSPHERE ENGINE — scene particles (fireflies, golden dust, petals, sunbeam
+   motes), dust puffs, spark bursts and the full-screen runic shockwave.
    ============================================================================ */
 
-const THEME_CONFIGS = {
-  "default": {
-    bgGlow: "rgba(212, 175, 55, 0.08)",
-    gridColor: "rgba(212, 175, 55, 0.035)",
-    colors: ["#d4af37", "#f7d665", "#b8860b", "#ffffff"],
-    mode: "embers"
-  },
-  "wise-battle": {
-    bgGlow: "rgba(44, 229, 155, 0.09)",
-    gridColor: "rgba(44, 229, 155, 0.04)",
-    colors: ["#2ce59b", "#d4af37", "#6ee7b7", "#fef08a"],
-    mode: "arcane-sparks"
-  },
-  "naruto": {
-    bgGlow: "rgba(255, 107, 26, 0.10)",
-    gridColor: "rgba(255, 107, 26, 0.06)",
-    colors: ["#ff6b1a", "#ff9e44", "#ef4444", "#fde047"],
-    mode: "chakra-grid"
-  },
-  "magic-words": {
-    bgGlow: "rgba(181, 101, 255, 0.11)",
-    gridColor: "rgba(181, 101, 255, 0.045)",
-    colors: ["#b565ff", "#5ce1e6", "#e879f9", "#c084fc"],
-    mode: "letter-runes"
-  },
-  "balloon": {
-    bgGlow: "rgba(56, 189, 248, 0.10)",
-    gridColor: "rgba(56, 189, 248, 0.045)",
-    colors: ["#38bdf8", "#f4b942", "#7dd3fc", "#e0f2fe"],
-    mode: "wind-streams"
-  },
-  "locked-slot": {
-    bgGlow: "rgba(16, 185, 129, 0.10)",
-    gridColor: "rgba(16, 185, 129, 0.075)",
-    colors: ["#10b981", "#6ee7b7", "#34d399", "#a7f3d0"],
-    mode: "blueprint-pulse"
-  }
+const PALETTES = {
+  fireflies: ['#f6e27a', '#d9f27a', '#fff3b0'],
+  meadow: ['#f6d77a', '#fff1c4', '#e8b84a'],
+  default: ['#ffe9a8', '#f6d77a', '#fff6dc'],
+  'wise-battle': ['#9be7a8', '#f6d77a', '#e6ffd8'],
+  naruto: ['#ffb36b', '#ff7a4d', '#ffd8a8'],
+  'magic-words': ['#c9a7ff', '#8fe3ff', '#f3e6ff'],
+  balloon: ['#bfe6ff', '#ffffff', '#ffe08a'],
+  'locked-slot': ['#7ff0c0', '#d6ffe9', '#f6d77a']
 };
 
-const RUNE_LETTERS = ["A", "E", "I", "O", "U", "W", "Z", "M", "R", "S", "K", "V"];
+const PETALS = ['#f7c6d0', '#fff2e0', '#f3b6c2'];
+const RUNES = ['ᚠ', 'ᚢ', 'ᚦ', 'ᚨ', 'ᚱ', 'ᚲ', 'ᚷ', 'ᚹ', 'ᛉ', 'ᛋ', 'ᛏ', 'ᛒ', 'ᛖ', 'ᛗ', 'ᛚ', 'ᛞ'];
 
 export class AtmosphereEngine {
-  constructor(atmoCanvas, shockCanvas) {
-    this.canvas = atmoCanvas;
-    this.ctx = atmoCanvas.getContext("2d");
-    this.shockCanvas = shockCanvas;
-    this.shockCtx = shockCanvas.getContext("2d");
-
-    this.currentTheme = "default";
+  constructor(particleCanvas, fxCanvas) {
+    this.pc = particleCanvas;
+    this.px = particleCanvas.getContext('2d');
+    this.fc = fxCanvas;
+    this.fx = fxCanvas.getContext('2d');
+    this.mode = 'fireflies';
+    this.tint = 'default';
     this.particles = [];
-    this.shockwaves = [];
-    this.scanPhase = 0;
-
+    this.petals = [];
+    this.sparks = [];
+    this.waves = [];
+    this.dust = [];
+    this.t = 0;
+    this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.resize();
-    window.addEventListener("resize", () => this.resize());
-    this.initParticles(58);
-    this.animate = this.animate.bind(this);
-    requestAnimationFrame(this.animate);
+    window.addEventListener('resize', () => this.resize());
+    this.seed();
+    this.loop = this.loop.bind(this);
+    requestAnimationFrame(this.loop);
   }
 
   resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-
-    [this.canvas, this.shockCanvas].forEach((c) => {
-      c.width = this.width * dpr;
-      c.height = this.height * dpr;
-      const ctx = c.getContext("2d");
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.w = window.innerWidth;
+    this.h = window.innerHeight;
+    [this.pc, this.fc].forEach((c) => {
+      c.width = Math.round(this.w * dpr);
+      c.height = Math.round(this.h * dpr);
+      c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
     });
   }
 
-  setTheme(themeKey) {
-    const validKey = THEME_CONFIGS[themeKey] ? themeKey : "default";
-    if (this.currentTheme === validKey) return;
-    this.currentTheme = validKey;
-
-    if (validKey === "default") {
-      document.body.removeAttribute("data-theme");
-    } else {
-      document.body.setAttribute("data-theme", validKey);
-    }
-
-    const cfg = THEME_CONFIGS[validKey];
-    this.particles.forEach((p) => {
-      p.color = cfg.colors[Math.floor(Math.random() * cfg.colors.length)];
-    });
+  seed() {
+    const count = this.reduced ? 14 : (this.w < 700 ? 26 : 46);
+    this.particles = Array.from({ length: count }, () => this.makeParticle(true));
+    this.petals = Array.from({ length: this.reduced ? 0 : 10 }, () => this.makePetal(true));
   }
 
-  initParticles(count) {
-    this.particles = [];
-    const cfg = THEME_CONFIGS[this.currentTheme];
+  palette() {
+    if (this.mode === 'fireflies') return PALETTES.fireflies;
+    if (this.mode === 'meadow') return PALETTES.meadow;
+    return PALETTES[this.tint] || PALETTES.default;
+  }
+
+  makeParticle(anywhere = false) {
+    const pal = this.palette();
+    return {
+      x: Math.random() * this.w,
+      y: anywhere ? Math.random() * this.h : this.h + 10,
+      r: 1 + Math.random() * 2.4,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: -0.1 - Math.random() * 0.35,
+      a: 0.25 + Math.random() * 0.55,
+      ph: Math.random() * Math.PI * 2,
+      c: pal[Math.floor(Math.random() * pal.length)]
+    };
+  }
+
+  makePetal(anywhere = false) {
+    return {
+      x: anywhere ? Math.random() * this.w : -20,
+      y: Math.random() * this.h * 0.8,
+      s: 3 + Math.random() * 3,
+      vx: 0.6 + Math.random() * 0.8,
+      vy: 0.15 + Math.random() * 0.3,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 0.04,
+      ph: Math.random() * 6,
+      c: PETALS[Math.floor(Math.random() * PETALS.length)]
+    };
+  }
+
+  setMode(mode, tint = this.tint) {
+    this.mode = mode;
+    this.tint = tint;
+    const pal = this.palette();
+    this.particles.forEach((p) => { p.c = pal[Math.floor(Math.random() * pal.length)]; });
+  }
+
+  setTint(tint) { this.setMode(this.mode, tint); }
+
+  /* ------------------------------------------------------------ effects */
+  burst(x, y, { count = 60, colors = ['#fff3c4', '#f6d77a', '#d4af37'], speed = 12, runes = false } = {}) {
     for (let i = 0; i < count; i++) {
-      this.particles.push({
-        x: Math.random() * this.width,
-        y: Math.random() * this.height,
-        size: 1.5 + Math.random() * 2.8,
-        vx: (Math.random() - 0.5) * 0.45,
-        vy: -0.35 - Math.random() * 0.65,
-        alpha: 0.2 + Math.random() * 0.65,
-        color: cfg.colors[i % cfg.colors.length],
-        letter: RUNE_LETTERS[i % RUNE_LETTERS.length],
-        phase: Math.random() * Math.PI * 2
+      const ang = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.3;
+      const sp = speed * (0.3 + Math.random() * 0.9);
+      this.sparks.push({
+        x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
+        r: 1.5 + Math.random() * 3.5, a: 1,
+        c: colors[i % colors.length],
+        rune: runes && i % 4 === 0 ? RUNES[i % RUNES.length] : null
       });
     }
   }
 
-  triggerShockwave(originX, originY) {
-    const maxRadius = Math.hypot(
-      Math.max(originX, this.width - originX),
-      Math.max(originY, this.height - originY)
-    ) * 1.15;
-
-    this.shockwaves.push({
-      x: originX,
-      y: originY,
-      radius: 8,
-      maxRadius,
-      alpha: 1
-    });
-  }
-
-  animate() {
-    this.renderAtmosphere();
-    this.renderShockwaves();
-    requestAnimationFrame(this.animate);
-  }
-
-  renderAtmosphere() {
-    const ctx = this.ctx;
-    const cfg = THEME_CONFIGS[this.currentTheme] || THEME_CONFIGS["default"];
-    ctx.clearRect(0, 0, this.width, this.height);
-
-    this.scanPhase += 0.015;
-
-    // 1. Ambient radial light aura
-    const grad = ctx.createRadialGradient(
-      this.width * 0.5,
-      this.height * 0.28,
-      20,
-      this.width * 0.5,
-      this.height * 0.4,
-      Math.max(this.width, this.height) * 0.68
-    );
-    grad.addColorStop(0, cfg.bgGlow);
-    grad.addColorStop(1, "transparent");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, this.width, this.height);
-
-    // 2. Tactical Grid / Blueprint Overlay for Naruto & Locked Slot
-    if (cfg.mode === "chakra-grid" || cfg.mode === "blueprint-pulse") {
-      const step = cfg.mode === "blueprint-pulse" ? 48 : 64;
-      ctx.strokeStyle = cfg.gridColor;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let x = 0; x < this.width; x += step) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, this.height);
-      }
-      for (let y = 0; y < this.height; y += step) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(this.width, y);
-      }
-      ctx.stroke();
-
-      if (cfg.mode === "blueprint-pulse") {
-        const pulseY = ((this.scanPhase * 90) % this.height);
-        ctx.strokeStyle = "rgba(16, 185, 129, 0.22)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(0, pulseY);
-        ctx.lineTo(this.width, pulseY);
-        ctx.stroke();
-      }
+  dustPuff(x, y, width = 400) {
+    for (let i = 0; i < 70; i++) {
+      const side = Math.random() < 0.5 ? -1 : 1;
+      this.dust.push({
+        x: x + (Math.random() - 0.5) * width,
+        y: y + (Math.random() - 0.5) * 20,
+        vx: side * (1 + Math.random() * 4),
+        vy: -0.4 - Math.random() * 1.8,
+        r: 6 + Math.random() * 16,
+        a: 0.35 + Math.random() * 0.25,
+        grow: 0.25 + Math.random() * 0.35
+      });
     }
+  }
 
-    // 3. Render Theme-Specific Particles
-    for (let i = 0; i < this.particles.length; i++) {
-      const p = this.particles[i];
-      p.phase += 0.025;
+  shockwave(x, y, { color = [247, 201, 72], runes = true } = {}) {
+    const max = Math.hypot(Math.max(x, this.w - x), Math.max(y, this.h - y)) * 1.15;
+    this.waves.push({ x, y, p: 0, max, color, runes, rot: 0 });
+    this.burst(x, y, { count: 64, speed: 14, runes, colors: ['#fff8e7', '#f7c948', '#7fd99a'] });
+  }
 
-      if (cfg.mode === "wind-streams") {
-        p.x += 1.4 + p.size * 0.35;
-        p.y += Math.sin(p.phase) * 0.35;
+  /* ------------------------------------------------------------ loop */
+  loop() {
+    this.t += 0.016;
+    this.drawParticles();
+    this.drawFx();
+    requestAnimationFrame(this.loop);
+  }
+
+  drawParticles() {
+    const c = this.px;
+    c.clearRect(0, 0, this.w, this.h);
+    const firefly = this.mode === 'fireflies';
+    for (const p of this.particles) {
+      p.ph += 0.02;
+      if (firefly) {
+        p.x += Math.cos(p.ph * 0.7) * 0.45 + p.vx;
+        p.y += Math.sin(p.ph) * 0.35;
       } else {
-        p.x += p.vx + Math.sin(p.phase) * 0.22;
+        p.x += p.vx + Math.sin(p.ph) * 0.2;
         p.y += p.vy;
       }
-
-      if (p.y < -20) p.y = this.height + 20;
-      if (p.y > this.height + 20) p.y = -20;
-      if (p.x < -20) p.x = this.width + 20;
-      if (p.x > this.width + 20) p.x = -20;
-
-      ctx.save();
-      ctx.globalAlpha = p.alpha * (0.65 + 0.35 * Math.sin(p.phase));
-      ctx.fillStyle = p.color;
-      ctx.strokeStyle = p.color;
-
-      if (cfg.mode === "letter-runes") {
-        ctx.font = `700 ${Math.round(10 + p.size * 2)}px "Cinzel", serif`;
-        ctx.fillText(p.letter, p.x, p.y);
-      } else if (cfg.mode === "wind-streams") {
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x - 18 - p.size * 4, p.y);
-        ctx.stroke();
-      } else if (cfg.mode === "arcane-sparks") {
-        // Diamond spark
-        const r = p.size * 1.3;
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y - r);
-        ctx.lineTo(p.x + r, p.y);
-        ctx.lineTo(p.x, p.y + r);
-        ctx.lineTo(p.x - r, p.y);
-        ctx.closePath();
-        ctx.fill();
-      } else {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
+      if (p.y < -12 || p.x < -20 || p.x > this.w + 20 || p.y > this.h + 20) Object.assign(p, this.makeParticle(firefly));
+      const flick = firefly ? Math.max(0, Math.sin(p.ph * 1.6)) : 0.6 + 0.4 * Math.sin(p.ph);
+      c.globalAlpha = p.a * flick;
+      c.fillStyle = p.c;
+      c.shadowColor = p.c;
+      c.shadowBlur = firefly ? 14 : 6;
+      c.beginPath();
+      c.arc(p.x, p.y, firefly ? p.r * 1.2 : p.r, 0, Math.PI * 2);
+      c.fill();
     }
+    c.shadowBlur = 0;
+    if (this.mode === 'meadow') {
+      for (const f of this.petals) {
+        f.ph += 0.03;
+        f.x += f.vx + Math.sin(f.ph) * 0.4;
+        f.y += f.vy + Math.cos(f.ph * 0.8) * 0.3;
+        f.rot += f.vr;
+        if (f.x > this.w + 30 || f.y > this.h + 30) Object.assign(f, this.makePetal(false));
+        c.save();
+        c.globalAlpha = 0.75;
+        c.translate(f.x, f.y);
+        c.rotate(f.rot);
+        c.scale(1, 0.55 + 0.45 * Math.abs(Math.sin(f.ph)));
+        c.fillStyle = f.c;
+        c.beginPath();
+        c.ellipse(0, 0, f.s * 1.4, f.s * 0.8, 0, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      }
+    }
+    c.globalAlpha = 1;
   }
 
-  renderShockwaves() {
-    const ctx = this.shockCtx;
-    ctx.clearRect(0, 0, this.width, this.height);
-    if (this.shockwaves.length === 0) return;
+  drawFx() {
+    const c = this.fx;
+    c.clearRect(0, 0, this.w, this.h);
+    if (!this.waves.length && !this.sparks.length && !this.dust.length) return;
 
-    for (let i = this.shockwaves.length - 1; i >= 0; i--) {
-      const sw = this.shockwaves[i];
-      sw.radius += Math.max(24, (sw.maxRadius - sw.radius) * 0.095);
-      const progress = sw.radius / sw.maxRadius;
-      sw.alpha = Math.max(0, 1 - progress);
-
-      ctx.save();
-      // Outer Golden Shockwave Ring
-      ctx.beginPath();
-      ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(247, 214, 101, ${sw.alpha * 0.9})`;
-      ctx.lineWidth = 6 * sw.alpha + 1.5;
-      ctx.shadowColor = "#f7d665";
-      ctx.shadowBlur = 24;
-      ctx.stroke();
-
-      // Secondary Arcane Echo Ring
-      if (sw.radius > 45) {
-        ctx.beginPath();
-        ctx.arc(sw.x, sw.y, sw.radius * 0.82, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(56, 189, 248, ${sw.alpha * 0.55})`;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
+    for (let i = this.waves.length - 1; i >= 0; i--) {
+      const wv = this.waves[i];
+      wv.p += 0.0125;
+      wv.rot += 0.02;
+      const e = 1 - Math.pow(1 - Math.min(1, wv.p), 2.4);
+      const r = 10 + e * wv.max;
+      const a = Math.max(0, 1 - Math.pow(wv.p, 1.5));
+      const [cr, cg, cb] = wv.color;
+      if (wv.p < 0.3) {
+        c.fillStyle = `rgba(255,246,210,${(1 - wv.p / 0.3) * 0.22})`;
+        c.fillRect(0, 0, this.w, this.h);
       }
-      ctx.restore();
+      c.save();
+      c.shadowColor = `rgb(${cr},${cg},${cb})`;
+      c.shadowBlur = 34;
+      c.strokeStyle = `rgba(${cr},${cg},${cb},${a})`;
+      c.lineWidth = 12 * a + 2;
+      c.beginPath(); c.arc(wv.x, wv.y, r, 0, Math.PI * 2); c.stroke();
+      if (r > 40) {
+        c.strokeStyle = `rgba(127,217,154,${a * 0.75})`;
+        c.lineWidth = 5 * a + 1;
+        c.beginPath(); c.arc(wv.x, wv.y, r * 0.82, 0, Math.PI * 2); c.stroke();
+      }
+      if (wv.runes) {
+        c.font = `700 ${Math.round(16 + 10 * a)}px "Cinzel", serif`;
+        c.fillStyle = `rgba(255,248,225,${a})`;
+        c.shadowColor = '#d4af37';
+        c.shadowBlur = 14;
+        for (let k = 0; k < RUNES.length; k++) {
+          const ang = (Math.PI * 2 * k) / RUNES.length + wv.rot;
+          c.fillText(RUNES[k], wv.x + Math.cos(ang) * r * 0.91, wv.y + Math.sin(ang) * r * 0.91);
+        }
+      }
+      c.restore();
+      if (wv.p >= 1) this.waves.splice(i, 1);
+    }
 
-      if (sw.radius >= sw.maxRadius * 0.98) {
-        this.shockwaves.splice(i, 1);
+    for (let i = this.sparks.length - 1; i >= 0; i--) {
+      const s = this.sparks[i];
+      s.x += s.vx; s.y += s.vy; s.vx *= 0.955; s.vy *= 0.955; s.a -= 0.017;
+      if (s.a <= 0) { this.sparks.splice(i, 1); continue; }
+      c.globalAlpha = s.a;
+      c.fillStyle = s.c;
+      c.shadowColor = s.c;
+      c.shadowBlur = 12;
+      if (s.rune) {
+        c.font = '700 16px "Cinzel", serif';
+        c.fillText(s.rune, s.x, s.y);
+      } else {
+        c.beginPath(); c.arc(s.x, s.y, s.r, 0, Math.PI * 2); c.fill();
       }
     }
+    c.shadowBlur = 0;
+
+    for (let i = this.dust.length - 1; i >= 0; i--) {
+      const d = this.dust[i];
+      d.x += d.vx; d.y += d.vy; d.vx *= 0.96; d.vy *= 0.97; d.r += d.grow; d.a -= 0.006;
+      if (d.a <= 0) { this.dust.splice(i, 1); continue; }
+      const g = c.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
+      g.addColorStop(0, `rgba(232,214,180,${d.a})`);
+      g.addColorStop(1, 'rgba(232,214,180,0)');
+      c.globalAlpha = 1;
+      c.fillStyle = g;
+      c.beginPath(); c.arc(d.x, d.y, d.r, 0, Math.PI * 2); c.fill();
+    }
+    c.globalAlpha = 1;
   }
 }

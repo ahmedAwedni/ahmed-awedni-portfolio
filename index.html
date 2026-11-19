@@ -2,400 +2,538 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ahmed Awedni — Game Designer & Technical Unity Developer (RPG HUD Portfolio)</title>
-  <meta name="description" content="Interactive Game UI Portfolio of Ahmed Awedni — Master Game Design @ IIM Paris. Seeking Alternance / Stage Alterné in Game Design, Systems & Balancing, and Technical Unity C# Development." />
-  <meta name="theme-color" content="#07060a" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ahmed Awedni — Game Designer & Technical Designer</title>
+  <meta name="description" content="Portfolio interactif d'Ahmed Awedni, Game Designer & Technical Designer (Master Game Design, IIM Paris). Recherche d'alternance à Paris / Île-de-France." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#1E1B3A" />
 
-  <!-- Google Fonts: Cinzel (Tactical RPG Display), Plus Jakarta Sans (Body), JetBrains Mono (HUD Telemetry) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet" />
 
+  <link rel="preload" as="image" href="public/assets/ui/act1-twilight-clearing.webp" />
+  <link rel="preload" as="image" href="public/assets/ui/treasure-chest.webp" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
-  <!-- Live Project-Reactive Atmosphere Canvas & Full-Screen Shockwave Canvas -->
-  <canvas id="atmosphere-canvas" aria-hidden="true"></canvas>
-  <canvas id="shockwave-canvas" aria-hidden="true"></canvas>
+<body class="is-act1">
+  <!-- ======================================================================
+       SHARED SVG DEFINITIONS (filigree, stars, emblems)
+       ====================================================================== -->
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="filigree" viewBox="0 0 120 120">
+        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 114 V24 Q6 6 24 6 H114" stroke-width="2.2" />
+          <path d="M14 114 V32 Q14 14 32 14 H114" stroke-width="1" />
+          <path d="M24 46 C24 32 32 24 46 24 C36 30 32 38 36 48 C40 58 54 54 52 44 C50 36 42 36 40 42" stroke-width="1.6" />
+          <path d="M46 24 C60 24 66 16 80 16" stroke-width="1.3" />
+          <path d="M24 46 C24 60 16 66 16 80" stroke-width="1.3" />
+          <circle cx="6" cy="6" r="3.2" fill="currentColor" stroke="none" />
+          <path d="M62 6 l6 -4 l6 4 l-6 4 z" fill="currentColor" stroke="none" />
+          <path d="M6 62 l-4 6 l4 6 l4 -6 z" fill="currentColor" stroke="none" />
+        </g>
+      </symbol>
+      <symbol id="star4" viewBox="0 0 20 20">
+        <path d="M10 0 C11 7 13 9 20 10 C13 11 11 13 10 20 C9 13 7 11 0 10 C7 9 9 7 10 0Z" fill="currentColor" />
+      </symbol>
+      <symbol id="divider" viewBox="0 0 240 16">
+        <g fill="none" stroke="currentColor" stroke-linecap="round">
+          <path d="M4 8 H98" stroke-width="1" />
+          <path d="M142 8 H236" stroke-width="1" />
+          <path d="M104 8 C110 2 116 2 120 8 C124 14 130 14 136 8" stroke-width="1.4" />
+          <path d="M120 1 l3 7 l-3 7 l-3 -7z" fill="currentColor" stroke="none" />
+        </g>
+      </symbol>
+      <!-- Project emblems (ink-drawn) -->
+      <symbol id="em-wise-battle" viewBox="0 0 120 120">
+        <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 82 C34 74 50 76 60 86 C70 76 86 74 106 82 V100 C86 92 70 94 60 104 C50 94 34 92 14 100 Z" />
+          <path d="M60 86 V104" />
+          <path d="M60 10 V70" />
+          <path d="M48 62 H72" />
+          <path d="M56 70 H64 L62 80 H58 Z" />
+          <path d="M60 10 L64 18 V58 H56 V18 Z" />
+        </g>
+      </symbol>
+      <symbol id="em-naruto-board-game" viewBox="0 0 120 120">
+        <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="60" cy="60" r="46" />
+          <path d="M60 22 C66 44 76 54 98 60 C76 66 66 76 60 98 C54 76 44 66 22 60 C44 54 54 44 60 22 Z" />
+          <circle cx="60" cy="60" r="7" />
+          <rect x="18" y="18" width="10" height="10" />
+          <rect x="92" y="18" width="10" height="10" />
+          <rect x="18" y="92" width="10" height="10" />
+          <rect x="92" y="92" width="10" height="10" />
+        </g>
+      </symbol>
+      <symbol id="em-magic-words" viewBox="0 0 120 120">
+        <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M96 12 C70 22 50 46 40 84 L46 86 C58 54 76 32 100 18 Z" />
+          <path d="M40 84 L34 104" />
+          <rect x="14" y="70" width="18" height="18" rx="2" />
+          <rect x="70" y="88" width="18" height="18" rx="2" />
+          <path d="M20 84 L23 74 L26 84 M21 81 H25" />
+          <path d="M76 102 V92 H82 M76 97 H81" />
+          <path d="M96 52 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 l7 -3 z" />
+        </g>
+      </symbol>
+      <symbol id="em-balloon-countries" viewBox="0 0 120 120">
+        <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M60 10 C36 10 24 28 24 46 C24 64 44 76 52 86 H68 C76 76 96 64 96 46 C96 28 84 10 60 10 Z" />
+          <path d="M60 10 C50 24 48 60 54 86 M60 10 C70 24 72 60 66 86" />
+          <path d="M26 44 H94" />
+          <path d="M52 86 L54 96 M68 86 L66 96" />
+          <rect x="52" y="96" width="16" height="12" rx="2" />
+        </g>
+      </symbol>
+      <symbol id="em-quest-05" viewBox="0 0 120 120">
+        <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="28" y="54" width="64" height="52" rx="6" />
+          <path d="M40 54 V40 C40 26 50 18 60 18 C70 18 80 26 80 40 V54" />
+          <circle cx="60" cy="76" r="6" />
+          <path d="M60 82 V94" />
+          <path d="M36 66 l4 4 M84 66 l-4 4 M36 96 l4 -4 M84 96 l-4 -4" />
+        </g>
+      </symbol>
+    </defs>
+  </svg>
 
-  <!-- ========================================================================
-       TOP TACTICAL TELEMETRY & AUDIO / LANGUAGE HUD BAR
-       ======================================================================== -->
-  <header class="hud-topbar" role="banner">
-    <a href="#hero-character-sheet" class="hud-brand">
-      <div class="hud-crest" aria-hidden="true">AA</div>
-      <div class="hud-brand-text">
-        <span class="hud-brand-name">AHMED AWEDNI</span>
-        <span class="hud-brand-sub" data-i18n="hud.unit_sub">LVL 22 // MASTER GAME DESIGN @ IIM PARIS</span>
+  <!-- ======================================================================
+       SCENE BACKDROPS (painted layers behind the particle canvas)
+       ====================================================================== -->
+  <div id="scene-bgs" class="scene-bgs" aria-hidden="true">
+    <div class="bg bg-act1">
+      <div class="bg-act1-img"></div>
+      <div class="bg-act1-glow"></div>
+    </div>
+    <div class="bg bg-act2">
+      <div class="bg-act2-right">
+        <svg class="map-watermark" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
+          <g fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M40 120 C110 90 170 140 230 118 C300 92 330 150 400 140 C470 130 520 170 580 150" />
+            <path d="M20 330 C90 300 140 360 210 340 C290 316 340 372 420 356 C500 340 540 380 600 362" />
+            <path d="M60 560 C120 520 190 590 260 566 C330 542 380 600 460 584" />
+            <path d="M380 420 C420 400 470 430 460 470 C450 510 400 520 380 490 C360 460 350 440 380 420 Z" />
+            <path d="M120 430 c20 -14 52 -6 56 16 c4 22 -28 36 -48 26 c-20 -10 -24 -30 -8 -42z" />
+            <path d="M0 200 H600 M0 400 H600 M0 600 H600 M150 0 V800 M300 0 V800 M450 0 V800" stroke-dasharray="2 8" />
+          </g>
+          <g transform="translate(470 680)" fill="none" stroke="currentColor">
+            <circle r="56" stroke-width="1.2" />
+            <circle r="44" stroke-width="0.8" />
+            <path d="M0 -74 L8 -8 L74 0 L8 8 L0 74 L-8 8 L-74 0 L-8 -8 Z" stroke-width="1.2" />
+            <path d="M0 -44 L0 44 M-44 0 L44 0" stroke-width="0.6" />
+          </g>
+        </svg>
       </div>
-    </a>
+      <div class="bg-act2-left"><div class="bg-act2-left-img"></div></div>
+      <div class="bg-act2-seam"></div>
+    </div>
+    <div class="bg bg-act3">
+      <div class="bg-act3-img"></div>
+      <div class="bg-act3-tint"></div>
+      <div class="bg-act3-beams"></div>
+    </div>
+  </div>
 
-    <nav class="hud-nav-center" aria-label="Primary HUD Navigation">
-      <a href="#hero-character-sheet" class="hud-nav-link" data-i18n="hud.nav_hero">Fiche Unité</a>
-      <a href="#quest-log-section" class="hud-nav-link" data-i18n="hud.nav_quests">Journal de Quêtes (5)</a>
-      <a href="#achievements-section" class="hud-nav-link" data-i18n="hud.nav_achievements">Trophées</a>
-      <div class="atmosphere-indicator" title="Dynamic Project-Reactive Atmosphere">
-        <span class="atmosphere-dot"></span>
-        <span data-i18n="hud.atmo_label">Atmosphère :</span>
-        <strong id="active-atmosphere-name" style="color:var(--theme-primary-bright);">Obsidienne & Or Tactique</strong>
-      </div>
-    </nav>
+  <canvas id="particle-canvas" class="particle-canvas" aria-hidden="true"></canvas>
 
+  <!-- ======================================================================
+       HUD
+       ====================================================================== -->
+  <header class="hud">
+    <button type="button" class="hud-monogram" id="hud-home" aria-label="Ahmed Awedni">
+      <span>AA</span>
+    </button>
     <div class="hud-controls">
-      <button type="button" id="sfx-toggle-btn" class="hud-btn" aria-pressed="true" title="Toggle UI & ElevenLabs SFX">
-        🔊 SFX: <span class="hud-btn-status">ON</span>
+      <button type="button" class="hud-pill" id="replay-intro-btn" hidden>
+        <span aria-hidden="true">↺</span> <span data-i18n="a2.replay">Rejouer l’intro</span>
       </button>
-      <button type="button" id="music-toggle-btn" class="hud-btn" aria-pressed="false" title="Toggle ElevenLabs Tactical Ambient Music">
-        🎵 MUSIC: <span class="hud-btn-status">OFF</span>
+      <button type="button" class="hud-pill" id="sfx-btn" aria-pressed="true">
+        <span data-i18n="hud.sfx">SFX</span> <b class="hud-state">ON</b>
       </button>
-      <button type="button" id="shockwave-lang-btn" class="hud-btn shockwave-lang-btn" aria-label="Switch Language FR / EN with Radial Shockwave">
-        ⚡ <span id="lang-indicator-fr" class="lang-active">FR</span> / <span id="lang-indicator-en" class="lang-inactive">EN</span>
+      <button type="button" class="hud-pill" id="music-btn" aria-pressed="false">
+        <span data-i18n="hud.music">Musique</span> <b class="hud-state">OFF</b>
+      </button>
+      <button type="button" class="hud-pill hud-lang" id="lang-btn" data-i18n-aria="hud.lang_aria" aria-label="Changer de langue : français / anglais">
+        <span class="lang-opt" data-lang="fr">FR</span><span class="lang-sep">✦</span><span class="lang-opt" data-lang="en">EN</span>
       </button>
     </div>
   </header>
 
-  <main class="hud-main">
-    <!-- ======================================================================
-         1. INTERACTIVE RPG CHARACTER SHEET HERO SECTION
-         ====================================================================== -->
-    <section id="hero-character-sheet" data-project-theme="default" aria-labelledby="hero-section-heading">
-      <div class="section-banner">
-        <div class="section-title-group">
-          <span class="section-eyebrow" data-i18n="hero.eyebrow">// INSPECTION D'UNITÉ JOUABLE — FICHE DE PERSONNAGE RPG</span>
-          <h1 id="hero-section-heading" class="section-title" data-i18n="hero.title">Ahmed Awedni — Game Designer & Technical Designer</h1>
+  <main id="scenes">
+    <!-- ==================================================================
+         ACT 1 — THE 5-STAR GACHA TREASURE CHEST
+         ================================================================== -->
+    <section id="act1" class="act act1" aria-label="Intro">
+      <div class="gacha">
+        <p class="gacha-keys"><span data-i18n="a1.keys">Clés restantes :</span> <b id="key-count">1</b> <span class="gacha-key-icon" id="key-icon" aria-hidden="true">🔑</span></p>
+        <button type="button" class="chest" id="chest" data-i18n-aria="a1.chest_aria" aria-label="Ouvrir le coffre runique">
+          <span class="chest-rays" aria-hidden="true"></span>
+          <span class="chest-halo" aria-hidden="true"></span>
+          <img class="chest-img" src="public/assets/ui/treasure-chest.webp" alt="" width="771" height="642" />
+          <span class="chest-seam" aria-hidden="true"></span>
+          <span class="chest-ground" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="gilded-btn" id="open-chest-btn"><span data-i18n="a1.open">Ouvrir le Coffre — Requiert 1 🔑</span></button>
+        <p class="gacha-rate" data-i18n="a1.rate">Taux d’obtention 5★ : 100 %</p>
+      </div>
+
+      <div class="wish-beam" aria-hidden="true"></div>
+      <div class="wish-stars" aria-hidden="true">
+        <svg><use href="#star4" /></svg><svg><use href="#star4" /></svg><svg><use href="#star4" /></svg><svg><use href="#star4" /></svg><svg><use href="#star4" /></svg>
+      </div>
+      <div class="hero-silhouette" aria-hidden="true">
+        <img src="public/assets/avatar-cutout.webp" alt="" />
+      </div>
+      <div class="wish-flash" aria-hidden="true"></div>
+
+      <button type="button" class="skip-intro" id="skip-intro-btn" data-i18n="a1.skip">Passer l’intro →</button>
+    </section>
+
+    <!-- ==================================================================
+         ACT 2 — DIAGONAL SPLIT CHARACTER SHEET
+         ================================================================== -->
+    <section id="act2" class="act act2" aria-labelledby="hero-name">
+      <div class="a2-portrait" id="a2-portrait">
+        <img src="public/assets/avatar-cutout.webp" alt="Ahmed Awedni" width="680" height="758" />
+      </div>
+
+      <div class="a2-left" id="a2-left">
+        <div class="a2-tags">
+          <span class="a2-tag a2-tag-level" data-i18n="a2.status">LVL 22 — Master Game Design @ IIM Paris</span>
+          <span class="a2-tag a2-tag-buff"><span class="buff-dot" aria-hidden="true"></span><span data-i18n="a2.buff">Recherche Alternance / Stage Alterné — Paris, Île-de-France</span></span>
         </div>
-        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--theme-primary-bright);border:1px solid var(--border-ornate);padding:0.35rem 0.75rem;background:rgba(0,0,0,0.45);">
-          🎮 BUILD v2026.4 // PLAYABLE PORTFOLIO HUD
+
+        <h1 class="hero-name" id="hero-name">
+          <span class="hero-line"><span class="glyph-star">A<svg class="in-star s1" aria-hidden="true"><use href="#star4" /></svg></span>HMED</span>
+          <span class="hero-line"><span class="glyph-star">A<svg class="in-star s2" aria-hidden="true"><use href="#star4" /></svg></span>WEDNI<svg class="tail-star" aria-hidden="true"><use href="#star4" /></svg></span>
+        </h1>
+        <p class="hero-sub" data-i18n="a2.subtitle">Game Designer & Technical Designer</p>
+        <blockquote class="hero-quote" data-i18n="a2.quote">« Bâtir avec la précision d’un développeur, l’œil d’un designer et le cœur d’un joueur. »</blockquote>
+
+        <div class="kit">
+          <p class="kit-label" data-i18n="a2.kit">Kit de compétences</p>
+          <div class="kit-row" id="ability-kit"></div>
         </div>
       </div>
 
-      <div class="character-sheet-grid">
-        <!-- LEFT COLUMN: CHARACTER AVATAR FRAME, VITALS & ACTIVE BUFFS -->
-        <div class="rpg-panel character-avatar-col">
-          <div id="portrait-inspect-wrapper" class="portrait-inspect-wrapper">
-            <div class="portrait-rarity-bar">
-              <span class="rarity-badge" data-i18n="hero.rarity">★ UNITÉ LÉGENDAIRE</span>
-              <span class="inspect-hint-pill" data-i18n="hero.inspect_hint">SURVOLER POUR SCANNER</span>
-            </div>
+      <div class="a2-right" id="a2-right">
+        <h2 class="ink-heading" data-i18n="a2.lore_title">Chronique</h2>
+        <p class="lore" data-i18n="a2.lore"></p>
 
-            <!-- Pre-wired to /public/assets/avatar.png with inline RPG silhouette fallback -->
-            <img
-              src="public/assets/avatar.png"
-              alt="Ahmed Awedni — Game Designer & Technical Unity Developer"
-              class="character-portrait-img"
-              onerror="this.style.display='none'; document.getElementById('avatar-fallback-svg').style.display='flex';"
-            />
-            <div id="avatar-fallback-svg" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle,#261e35,#09070e);padding:2rem;text-align:center;">
-              <svg width="110" height="110" viewBox="0 0 100 100" fill="none" stroke="#d4af37" stroke-width="2">
-                <polygon points="50,6 90,26 90,74 50,94 10,74 10,26" fill="rgba(212,175,55,0.1)" />
-                <circle cx="50" cy="40" r="14" />
-                <path d="M24 80 C24 62, 76 62, 76 80" />
-              </svg>
-              <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--theme-primary-bright);margin-top:0.5rem;">/public/assets/avatar.png</span>
-            </div>
-
-            <div class="portrait-inspect-hud" aria-hidden="true"></div>
-
-            <div class="portrait-level-overlay">
-              <span class="level-pill" data-i18n="hero.lvl_badge">LVL 22 — Master Game Design @ IIM Paris</span>
-              <div class="unit-name-display">AHMED AWEDNI</div>
-              <div class="unit-class-subtitle" data-i18n="hero.class_title">Game Designer & Technical Unity Developer</div>
-            </div>
-          </div>
-
-          <!-- Unit Vitals (HP / XP) -->
-          <div class="unit-vitals-box">
-            <div class="vital-row">
-              <strong style="color:#4ade80;">HP</strong>
-              <div class="vital-bar-track"><div class="vital-bar-fill vital-hp" style="width:100%;"></div></div>
-              <span style="text-align:right;color:#4ade80;">100 / 100</span>
-            </div>
-            <div class="vital-row">
-              <strong style="color:var(--theme-primary-bright);">XP</strong>
-              <div class="vital-bar-track"><div class="vital-bar-fill vital-xp" style="width:94%;"></div></div>
-              <span style="text-align:right;color:var(--theme-primary-bright);">9,450 / 10K</span>
-            </div>
-          </div>
-
-          <!-- Active Buff Icons -->
-          <div>
-            <div class="buffs-header" data-i18n="hero.buffs_title" style="margin-bottom:0.45rem;">BUFFS DE RECHERCHE ACTIFS (2026)</div>
-            <div class="buffs-list">
-              <span class="buff-chip" data-i18n="hero.buff1" title="Contrat d'Apprentissage / Professionnalisation / Stage Alterné">⚡ Recherche Alternance / Stage Alterné</span>
-              <span class="buff-chip" data-i18n="hero.buff2" title="Basé en région parisienne — IIM Digital School Paris La Défense">📍 Paris — Île-de-France (Mobilité Totale)</span>
-              <span class="buff-chip" data-i18n="hero.buff3" title="Prêt à rejoindre votre équipe de Game Design ou Prototyping">🎯 Dispo Immédiate — Rythme École/Studio</span>
-            </div>
+        <div class="stats-head">
+          <h2 class="ink-heading" data-i18n="a2.stats_title">Attributs</h2>
+          <button type="button" class="ink-toggle" id="radar-toggle" aria-pressed="false"><span data-i18n="a2.view_radar">Vue radar</span></button>
+        </div>
+        <div class="stats-wrap">
+          <ul class="stat-list" id="stat-list"></ul>
+          <div class="radar-wrap" id="radar-wrap" hidden>
+            <svg id="radar-svg" class="radar" viewBox="0 0 260 260" role="img" aria-label="Radar"></svg>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: CORE GAME DESIGNER RPG ATTRIBUTES, HEX RADAR & EQUIPPED LOADOUT -->
-        <div class="rpg-panel character-stats-col">
-          <div class="character-sheet-top">
-            <p class="character-lore-quote" data-i18n="hero.lore">
-              Concepteur de systèmes de jeu et développeur Unity C# passionné par <strong>l'équilibrage mathématique</strong>, les <strong>économies d'action asymétriques</strong> et le <strong>Game Feel</strong>. Je transforme des intentions de design complexes en prototypes jouables, lisibles et rigoureusement équilibrés par le playtest.
-            </p>
-          </div>
-
-          <div class="stats-and-radar-grid">
-            <!-- 6 Animated RPG Stat Bars -->
-            <div id="rpg-stats-list" class="rpg-stats-list" role="list" aria-label="Core Game Designer RPG Attributes"></div>
-
-            <!-- 6-Point Hexagonal Radar Chart + Inspect Readout -->
-            <div class="radar-box">
-              <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--theme-primary-bright);letter-spacing:0.08em;margin-bottom:0.35rem;" data-i18n="hero.radar_title">
-                RADAR HEXAGONAL D'ATTRIBUTS
-              </div>
-              <svg id="rpg-radar-svg" class="radar-svg" viewBox="0 0 240 240" aria-label="6-Point Hexagonal Attribute Radar"></svg>
-              <div id="radar-tooltip-readout" class="radar-tooltip-readout" data-i18n="hero.radar_default_tip">
-                Survolez ou cliquez sur l'une des 6 statistiques RPG pour inspecter les preuves de conception et systèmes associés.
-              </div>
-            </div>
-          </div>
-
-          <!-- Equipped Inventory / Loadout Slots (Unity, C#, Aseprite, Blender, Illustrator, GitHub) -->
-          <div class="loadout-section">
-            <div class="loadout-header-row">
-              <span class="loadout-title" data-i18n="hero.loadout_title">INVENTAIRE ÉQUIPÉ & ARSENAL TECHNIQUE (6 SLOTS)</span>
-              <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);" data-i18n="hero.loadout_sub">
-                Cliquez sur un équipement pour inspecter ses bonus de production
-              </span>
-            </div>
-            <div id="loadout-slots-grid" class="loadout-slots-grid"></div>
-            <div id="loadout-tooltip-panel" class="item-tooltip-panel"></div>
-          </div>
+        <div class="loadout">
+          <h2 class="ink-heading" data-i18n="a2.loadout">Équipement</h2>
+          <div class="loadout-row" id="loadout-row"></div>
         </div>
+
+        <button type="button" class="gilded-btn cta" id="open-grimoire-btn"><span data-i18n="a2.cta">Ouvrir le Grimoire des Quêtes ✦</span></button>
       </div>
     </section>
 
-    <!-- ======================================================================
-         2. QUEST FILTER & THE 5 PROJECT CASE STUDIES
-         ====================================================================== -->
-    <section id="quest-log-section" aria-labelledby="quests-section-heading">
-      <div class="section-banner">
-        <div class="section-title-group">
-          <span class="section-eyebrow" data-i18n="quests.eyebrow">// JOURNAL DE CAMPAGNE — 5 ÉTUDES DE CAS & SIMULATEURS INTERACTIFS</span>
-          <h2 id="quests-section-heading" class="section-title" data-i18n="quests.title">Quêtes Principales & Architecture de Systèmes</h2>
-        </div>
-      </div>
+    <!-- ==================================================================
+         ACT 3 — THE LIVING GRIMOIRE
+         ================================================================== -->
+    <section id="act3" class="act act3" aria-label="Grimoire">
+      <div class="book-stage" id="book-stage">
+        <div class="book" id="book">
+          <nav class="bookmarks" id="bookmarks" aria-label="Signets">
+            <button type="button" class="ribbon r-crimson" data-bookmark="sheet"><span data-i18n="bm.sheet">Fiche Perso</span></button>
+            <button type="button" class="ribbon r-emerald" data-bookmark="0"><span data-i18n="bm.toc">Sommaire</span></button>
+            <button type="button" class="ribbon r-gold" data-bookmark="6"><span data-i18n="bm.ach">Succès</span></button>
+            <button type="button" class="ribbon r-indigo" data-bookmark="6c"><span data-i18n="bm.contact">Contact / CV</span></button>
+          </nav>
 
-      <!-- Interactive Quest Filter Bar -->
-      <div class="quest-filter-bar" role="toolbar" aria-label="Project Quest Filter">
-        <button type="button" class="quest-filter-btn active" data-quest-filter="all" data-i18n="quests.filter_all">Tous les Projets (5)</button>
-        <button type="button" class="quest-filter-btn" data-quest-filter="tech" data-i18n="quests.filter_tech">Technical Design & Scripting</button>
-        <button type="button" class="quest-filter-btn" data-quest-filter="systems" data-i18n="quests.filter_sys">Systems & Balancing</button>
-        <button type="button" class="quest-filter-btn" data-quest-filter="3cs" data-i18n="quests.filter_3cs">Core Mechanics & 3Cs</button>
-        <button type="button" class="quest-filter-btn" data-quest-filter="world" data-i18n="quests.filter_lwd">Level, World & Narrative</button>
-        <button type="button" class="quest-filter-btn" data-quest-filter="ux" data-i18n="quests.filter_uxg">UX & Game Feel</button>
-      </div>
+          <div class="book-block" id="book-block">
+            <div class="page-stack stack-left" aria-hidden="true"></div>
+            <div class="page-stack stack-right" aria-hidden="true"></div>
 
-      <div class="projects-stack">
-        <!-- ==================================================================
-             PROJECT 1: WISE BATTLE (3D Online Multiplayer Tactical RPG & AI Serious Game)
-             ================================================================== -->
-        <article class="quest-card" data-project-theme="wise-battle" data-categories="tech,systems,3cs,ux">
-          <div class="quest-card-header">
-            <div>
-              <span class="quest-number-badge" data-i18n="p1.badge">QUÊTE #01 // RPG TACTIQUE MULTIJOUEUR 3D & IA SERIOUS GAME</span>
-              <h3 class="quest-title" data-i18n="p1.title">Wise Battle</h3>
+            <!-- ============================ LEFT PAGE ============================ -->
+            <div class="page page-left" id="page-left">
+              <div class="page-inner" id="page-left-inner">
+
+                <!-- SPREAD 0 · TOC (left) -->
+                <div class="leaf is-active" data-spread="0" data-side="left">
+                  <h2 class="page-title" data-i18n="toc.title">Sommaire</h2>
+                  <svg class="divider" aria-hidden="true"><use href="#divider" /></svg>
+                  <p class="filter-label" data-i18n="toc.filter">Filtrer les quêtes</p>
+                  <div class="filter-row" id="toc-filters" role="group">
+                    <button type="button" class="chip is-on" data-filter="all"><span data-i18n="toc.f_all">Toutes (5)</span></button>
+                    <button type="button" class="chip" data-filter="tech" data-i18n="toc.f_tech">Design Technique & Scripting</button>
+                    <button type="button" class="chip" data-filter="systems" data-i18n="toc.f_sys">Systèmes & Équilibrage</button>
+                    <button type="button" class="chip" data-filter="3cs" data-i18n="toc.f_3cs">Mécaniques Core & 3Cs</button>
+                    <button type="button" class="chip" data-filter="world" data-i18n="toc.f_world">Level, Monde & Narration</button>
+                    <button type="button" class="chip" data-filter="ux" data-i18n="toc.f_ux">UX & Game Feel</button>
+                  </div>
+                  <ol class="toc-list" id="toc-list"></ol>
+                  <p class="toc-empty" id="toc-empty" hidden data-i18n="toc.empty">Aucune quête ne correspond à ce filtre.</p>
+                  <p class="toc-hint" data-i18n="toc.hint">Survolez une quête pour en dessiner l’aperçu à l’encre. Cliquez pour vous y rendre.</p>
+                  <p class="folio">i</p>
+                </div>
+
+                <!-- SPREAD 1 · WISE BATTLE (left) -->
+                <div class="leaf" data-spread="1" data-side="left">
+                  <p class="chapter" data-chapter="I"></p>
+                  <h2 class="proj-title">Wise Battle</h2>
+                  <p class="proj-kind" data-i18n-proj="wise-battle.kind"></p>
+                  <p class="proj-meta" data-i18n="p1.meta"></p>
+                  <div class="skills"><span class="skills-label" data-i18n="proj.skills">Compétences clés</span>
+                    <span class="skill">Systems & Combat Design</span><span class="skill">Game Balancing</span><span class="skill">Unity C#</span><span class="skill">Multiplayer Architecture</span><span class="skill">Mobile UI/UX</span>
+                  </div>
+                  <p class="proj-pitch" data-i18n-proj="wise-battle.pitch"></p>
+                  <figure class="media-frame">
+                    <svg class="fili tl" aria-hidden="true"><use href="#filigree" /></svg><svg class="fili br" aria-hidden="true"><use href="#filigree" /></svg>
+                    <div class="media-stage" style="background-image:url('public/assets/realms/realm-fortress.jpg')">
+                      <!-- Drop gameplay footage at public/assets/media/wise-battle.mp4 and list it in public/assets/media/manifest.json -->
+                      <video class="media-video" data-video-src="public/assets/media/wise-battle.mp4" autoplay loop muted playsinline></video>
+                    </div>
+                    <figcaption data-i18n="proj.media_caption">Illustration du chapitre</figcaption>
+                  </figure>
+                  <div class="pdr">
+                    <p class="pdr-title" data-i18n="proj.pdr">Journal d’itération</p>
+                    <div class="pdr-row prob"><span class="pdr-seal"></span><div><b data-i18n="proj.problem">Problème</b><p data-i18n="p1.prob"></p></div></div>
+                    <div class="pdr-row dec"><span class="pdr-seal"></span><div><b data-i18n="proj.decision">Décision</b><p data-i18n="p1.dec"></p></div></div>
+                    <div class="pdr-row res"><span class="pdr-seal"></span><div><b data-i18n="proj.result">Résultat</b><p data-i18n="p1.res"></p></div></div>
+                  </div>
+                  <p class="folio">1</p>
+                </div>
+
+                <!-- SPREAD 2 · NARUTO (left) -->
+                <div class="leaf" data-spread="2" data-side="left">
+                  <p class="chapter" data-chapter="II"></p>
+                  <h2 class="proj-title">Naruto: The Board Game</h2>
+                  <p class="proj-kind" data-i18n-proj="naruto-board-game.kind"></p>
+                  <p class="proj-meta" data-i18n="p2.meta"></p>
+                  <p class="proj-tag" data-i18n="p2.tag"></p>
+                  <div class="skills"><span class="skills-label" data-i18n="proj.skills">Compétences clés</span>
+                    <span class="skill">Tabletop Systems Design</span><span class="skill">Rulebook Writing</span><span class="skill">Economy & Combat Balancing</span><span class="skill">Board Layout Design</span>
+                  </div>
+                  <p class="proj-pitch" data-i18n-proj="naruto-board-game.pitch"></p>
+                  <figure class="media-frame">
+                    <svg class="fili tl" aria-hidden="true"><use href="#filigree" /></svg><svg class="fili br" aria-hidden="true"><use href="#filigree" /></svg>
+                    <div class="media-stage" style="background-image:url('public/assets/realms/realm-kingdom.jpg')">
+                      <video class="media-video" data-video-src="public/assets/media/naruto-board-game.mp4" autoplay loop muted playsinline></video>
+                    </div>
+                    <figcaption data-i18n="proj.media_caption">Illustration du chapitre</figcaption>
+                  </figure>
+                  <div class="pdr">
+                    <p class="pdr-title" data-i18n="proj.pdr">Journal d’itération</p>
+                    <div class="pdr-row prob"><span class="pdr-seal"></span><div><b data-i18n="proj.problem">Problème</b><p data-i18n="p2.prob"></p></div></div>
+                    <div class="pdr-row dec"><span class="pdr-seal"></span><div><b data-i18n="proj.decision">Décision</b><p data-i18n="p2.dec"></p></div></div>
+                    <div class="pdr-row res"><span class="pdr-seal"></span><div><b data-i18n="proj.result">Résultat</b><p data-i18n="p2.res"></p></div></div>
+                  </div>
+                  <p class="folio">3</p>
+                </div>
+
+                <!-- SPREAD 3 · MAGIC WORDS (left) -->
+                <div class="leaf" data-spread="3" data-side="left">
+                  <p class="chapter" data-chapter="III"></p>
+                  <h2 class="proj-title">Magic Words</h2>
+                  <p class="proj-kind" data-i18n-proj="magic-words.kind"></p>
+                  <p class="proj-meta" data-i18n="p3.meta"></p>
+                  <div class="skills"><span class="skills-label" data-i18n="proj.skills">Compétences clés</span>
+                    <span class="skill">Combat Balancing</span><span class="skill">Procedural Systems</span><span class="skill">Unity C#</span><span class="skill">2D Pixel Art</span>
+                  </div>
+                  <p class="proj-pitch" data-i18n-proj="magic-words.pitch"></p>
+                  <figure class="media-frame">
+                    <svg class="fili tl" aria-hidden="true"><use href="#filigree" /></svg><svg class="fili br" aria-hidden="true"><use href="#filigree" /></svg>
+                    <div class="media-stage" style="background-image:url('public/assets/realms/realm-cathedral.jpg')">
+                      <video class="media-video" data-video-src="public/assets/media/magic-words.mp4" autoplay loop muted playsinline></video>
+                    </div>
+                    <figcaption data-i18n="proj.media_caption">Illustration du chapitre</figcaption>
+                  </figure>
+                  <div class="pdr">
+                    <p class="pdr-title" data-i18n="proj.pdr">Journal d’itération</p>
+                    <div class="pdr-row prob"><span class="pdr-seal"></span><div><b data-i18n="proj.problem">Problème</b><p data-i18n="p3.prob"></p></div></div>
+                    <div class="pdr-row dec"><span class="pdr-seal"></span><div><b data-i18n="proj.decision">Décision</b><p data-i18n="p3.dec"></p></div></div>
+                    <div class="pdr-row res"><span class="pdr-seal"></span><div><b data-i18n="proj.result">Résultat</b><p data-i18n="p3.res"></p></div></div>
+                  </div>
+                  <p class="folio">5</p>
+                </div>
+
+                <!-- SPREAD 4 · BALLOON (left) -->
+                <div class="leaf" data-spread="4" data-side="left">
+                  <p class="chapter" data-chapter="IV"></p>
+                  <h2 class="proj-title">Balloon of the Countries</h2>
+                  <p class="proj-kind" data-i18n-proj="balloon-countries.kind"></p>
+                  <p class="proj-meta" data-i18n="p4.meta"></p>
+                  <div class="skills"><span class="skills-label" data-i18n="proj.skills">Compétences clés</span>
+                    <span class="skill">Mobile UI/UX</span><span class="skill">Turn-Based Pacing</span><span class="skill">Progression Design</span><span class="skill">2D Game Art</span>
+                  </div>
+                  <p class="proj-pitch" data-i18n-proj="balloon-countries.pitch"></p>
+                  <figure class="media-frame">
+                    <svg class="fili tl" aria-hidden="true"><use href="#filigree" /></svg><svg class="fili br" aria-hidden="true"><use href="#filigree" /></svg>
+                    <div class="media-stage" style="background-image:url('public/assets/realms/realm-sky.jpg')">
+                      <video class="media-video" data-video-src="public/assets/media/balloon-countries.mp4" autoplay loop muted playsinline></video>
+                    </div>
+                    <figcaption data-i18n="proj.media_caption">Illustration du chapitre</figcaption>
+                  </figure>
+                  <div class="pdr">
+                    <p class="pdr-title" data-i18n="proj.pdr">Journal d’itération</p>
+                    <div class="pdr-row prob"><span class="pdr-seal"></span><div><b data-i18n="proj.problem">Problème</b><p data-i18n="p4.prob"></p></div></div>
+                    <div class="pdr-row dec"><span class="pdr-seal"></span><div><b data-i18n="proj.decision">Décision</b><p data-i18n="p4.dec"></p></div></div>
+                    <div class="pdr-row res"><span class="pdr-seal"></span><div><b data-i18n="proj.result">Résultat</b><p data-i18n="p4.res"></p></div></div>
+                  </div>
+                  <p class="folio">7</p>
+                </div>
+
+                <!-- SPREAD 5 · QUEST 05 (left) -->
+                <div class="leaf leaf-blueprint" data-spread="5" data-side="left">
+                  <p class="chapter" data-chapter="V"></p>
+                  <h2 class="proj-title" data-i18n="p5.title">Quête V — Bientôt descellée</h2>
+                  <p class="proj-pitch" data-i18n="p5.lead"></p>
+                  <div class="skills"><span class="skills-label" data-i18n="proj.skills">Compétences clés</span>
+                    <span class="skill">Level Design</span><span class="skill">AI Behavior</span><span class="skill">Narrative Design</span><span class="skill">Rapid Prototyping</span>
+                  </div>
+                  <div class="blueprint">
+                    <p class="blueprint-title" data-i18n="p5.blueprint">Plan du prototype</p>
+                    <svg viewBox="0 0 320 200" class="blueprint-svg" aria-hidden="true">
+                      <g fill="none" stroke="currentColor" stroke-width="1.2">
+                        <rect x="10" y="10" width="300" height="180" stroke-dasharray="4 4" />
+                        <path d="M30 160 H110 V120 H170 V150 H230 V100 H290" />
+                        <circle cx="60" cy="146" r="7" />
+                        <path d="M200 86 l10 -16 l10 16 z" />
+                        <path d="M250 60 c12 -10 28 -2 26 10" stroke-dasharray="3 3" />
+                        <rect x="130" y="40" width="60" height="34" rx="4" />
+                        <path d="M140 52 H180 M140 62 H168" />
+                      </g>
+                    </svg>
+                  </div>
+                  <p class="folio">9</p>
+                </div>
+
+                <!-- SPREAD 6 · FEATS (left) -->
+                <div class="leaf" data-spread="6" data-side="left">
+                  <h2 class="page-title" data-i18n="ach.title">Succès déverrouillés</h2>
+                  <svg class="divider" aria-hidden="true"><use href="#divider" /></svg>
+                  <ul class="feats">
+                    <li class="feat is-earned">
+                      <span class="feat-seal" aria-hidden="true">🫧</span>
+                      <div><h3 data-i18n="ach.a1_title">Bubble Trouble</h3><p data-i18n="ach.a1_desc"></p><span class="feat-state" data-i18n="ach.unlocked">Obtenu</span></div>
+                    </li>
+                    <li class="feat is-earned">
+                      <span class="feat-seal" aria-hidden="true">⏳</span>
+                      <div><h3 data-i18n="ach.a2_title">Global Game Jam 2026</h3><p data-i18n="ach.a2_desc"></p><span class="feat-state" data-i18n="ach.unlocked">Obtenu</span></div>
+                    </li>
+                    <li class="feat" id="feat-inspector">
+                      <span class="feat-seal" aria-hidden="true">🔍</span>
+                      <div><h3 data-i18n="ach.a3_title">Inspecteur de Systèmes</h3><p data-i18n="ach.a3_desc"></p><span class="feat-state" id="feat-inspector-state" data-i18n="ach.locked">Pas encore obtenu</span></div>
+                    </li>
+                  </ul>
+                  <p class="folio">11</p>
+                </div>
+              </div>
+              <button type="button" class="corner corner-prev" id="corner-prev" data-i18n-aria="nav.prev" aria-label="Page précédente"></button>
             </div>
-            <button type="button" class="sim-btn" data-activate-theme="wise-battle">
-              🌲 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
-            </button>
-          </div>
 
-          <div class="primary-skills-row">
-            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
-            <span class="skill-badge">Systems & Combat Design</span>
-            <span class="skill-badge">Game Balancing</span>
-            <span class="skill-badge">Unity C#</span>
-            <span class="skill-badge">Multiplayer Architecture</span>
-            <span class="skill-badge">Mobile UI/UX</span>
-          </div>
+            <!-- ============================ RIGHT PAGE ============================ -->
+            <div class="page page-right" id="page-right">
+              <div class="page-inner" id="page-right-inner">
 
-          <div class="metadata-hud-bar">
-            <span class="metadata-hud-item" data-i18n="p1.meta_role"><strong>Rôle :</strong> Co-Auteur GDD, Game Designer & Développeur Unity C#</span>
-            <span class="metadata-hud-item" data-i18n="p1.meta_stack"><strong>Stack :</strong> Unity 3D, C#, Netcode, Gemini API, Blender</span>
-            <span class="metadata-hud-item" data-i18n="p1.meta_scope"><strong>Cadre :</strong> Projet Capstone 4 Mois (CGI Studio) | Mobile Android</span>
-          </div>
-
-          <div class="quest-overview-grid">
-            <div class="quest-pitch-col">
-              <p class="high-concept-pitch" data-i18n="p1.pitch">
-                Un RPG médiéval-fantastique 3D en 1v1 au tour par tour où les joueurs importent n'importe quel cours PDF et utilisent des quiz de rappel actif générés par IA comme unique carburant de leur économie d'énergie de combat.
-              </p>
-
-              <div class="playtest-iteration-box">
-                <div class="playtest-box-title">
-                  <span>🔬</span> <span data-i18n="p1.pdr_title">Journal d'Itération Playtest (Problème → Décision → Résultat)</span>
-                </div>
-                <div class="pdr-steps">
-                  <div class="pdr-step problem">
-                    <span class="pdr-tag">PROBLEM:</span>
-                    <span data-i18n="p1.pdr_prob">Avantage critique du Joueur 1 et joueurs répondant au hasard en 1 seconde pour accumuler de l'énergie.</span>
+                <!-- SPREAD 0 · TOC (right — live ink preview) -->
+                <div class="leaf is-active" data-spread="0" data-side="right">
+                  <div class="ink-preview" id="ink-preview">
+                    <div class="ink-idle" id="ink-idle">
+                      <svg class="ink-compass" viewBox="0 0 200 200" aria-hidden="true">
+                        <g fill="none" stroke="currentColor">
+                          <circle cx="100" cy="100" r="78" stroke-width="1.4" />
+                          <circle cx="100" cy="100" r="62" stroke-width="0.8" stroke-dasharray="3 5" />
+                          <path d="M100 8 L110 90 L192 100 L110 110 L100 192 L90 110 L8 100 L90 90 Z" stroke-width="1.6" />
+                          <path d="M100 40 L104 96 L160 100 L104 104 L100 160 L96 104 L40 100 L96 96 Z" stroke-width="1" />
+                        </g>
+                      </svg>
+                      <p data-i18n="toc.hint">Survolez une quête pour en dessiner l’aperçu à l’encre. Cliquez pour vous y rendre.</p>
+                    </div>
+                    <div class="ink-card" id="ink-card" hidden>
+                      <svg class="ink-emblem" id="ink-emblem" aria-hidden="true"><use id="ink-emblem-use" href="#em-wise-battle" /></svg>
+                      <p class="chapter" id="ink-chapter"></p>
+                      <h3 class="ink-title" id="ink-title">Wise Battle</h3>
+                      <p class="ink-kind" id="ink-kind"></p>
+                      <svg class="divider" aria-hidden="true"><use href="#divider" /></svg>
+                      <p class="ink-pitch" id="ink-pitch"></p>
+                      <p class="skills-label" data-i18n="toc.preview_skills">Compétences clés</p>
+                      <div class="ink-skills" id="ink-skills"></div>
+                      <button type="button" class="ink-link" id="ink-open"><span data-i18n="toc.preview_open">Ouvrir ce chapitre ✦</span></button>
+                    </div>
                   </div>
-                  <div class="pdr-step decision">
-                    <span class="pdr-tag">DECISION:</span>
-                    <span data-i18n="p1.pdr_dec">Création de la « Règle 30/30 » avec pénalité stricte (-15 Énergie + verrouillage de la phase d'action en cas d'erreur) et ajout du buff d'équilibrage « Second Player Aid » (+15 Énergie au Tour 1 pour le Joueur 2).</span>
+                  <p class="folio">ii</p>
+                </div>
+
+                <!-- SPREAD 1 · WISE BATTLE (right — artifacts) -->
+                <div class="leaf" data-spread="1" data-side="right">
+                  <div class="art-tabs" role="tablist">
+                    <button type="button" class="art-tab is-on" data-art="1a"><b data-i18n="proj.artifact_a">Artefact A</b><span data-i18n="p1.artA"></span></button>
+                    <button type="button" class="art-tab" data-art="1b"><b data-i18n="proj.artifact_b">Artefact B</b><span data-i18n="p1.artB"></span></button>
                   </div>
-                  <div class="pdr-step result">
-                    <span class="pdr-tag">RESULT:</span>
-                    <span data-i18n="p1.pdr_res">Taux de victoire J1/J2 stabilisé à 51% / 49% sur 40+ matchs de test ; élimination totale du spam aléatoire.</span>
+
+                  <div class="artifact is-on" data-art-panel="1a">
+                    <div class="ctrl-row">
+                      <div class="ctrl-grow">
+                        <div class="ctrl-line"><span><span data-i18n="wb.speed">Vitesse de réponse (T)&nbsp;:</span> <b id="wb-time-val">12s</b></span><span><span data-i18n="wb.max_t">Minuteur max&nbsp;:</span> <b id="wb-max-timer">30s</b></span></div>
+                        <input type="range" id="wb-time-slider" class="ink-slider" min="1" max="30" value="12" data-i18n-aria="wb.slider_aria" aria-label="Temps de réponse au quiz en secondes" />
+                      </div>
+                      <button type="button" id="wb-p2-aid-btn" class="ink-btn">Aide J2 : OFF (J1 par défaut)</button>
+                    </div>
+                    <div class="ctrl-row">
+                      <div class="btn-group">
+                        <button type="button" class="ink-btn active" data-wb-outcome="correct" data-i18n="wb.out_ok">Correct (+T rest. E)</button>
+                        <button type="button" class="ink-btn" data-wb-outcome="wrong" data-i18n="wb.out_bad">Erreur (−15&nbsp;E, verrou)</button>
+                        <button type="button" class="ink-btn" data-wb-outcome="timeout" data-i18n="wb.out_time">Temps écoulé (0&nbsp;E)</button>
+                      </div>
+                      <button type="button" id="wb-resolve-quiz-btn" class="ink-btn primary" data-i18n="wb.resolve">Résoudre le quiz</button>
+                    </div>
+                    <div class="tele-grid">
+                      <div class="tele"><span data-i18n="wb.delta">Gain d’énergie</span><b id="wb-delta-val">+18 E</b></div>
+                      <div class="tele"><span data-i18n="wb.pool">Réserve d’énergie (max 100)</span><b id="wb-energy-val">25 / 100 E</b><div class="ink-bar"><i id="wb-energy-bar" style="width:25%"></i></div></div>
+                      <div class="tele"><span data-i18n="wb.phase">Phase d’action</span><b id="wb-phase-state">Débloquée</b></div>
+                      <div class="tele"><span data-i18n="wb.turn">Tour (limite 30)</span><b id="wb-turn-count">1 / 30</b></div>
+                    </div>
+                    <p class="ctrl-caption" data-i18n="wb.phase2">Phase 2 — action de combat (requiert une phase d’action débloquée)</p>
+                    <div class="btn-grid-4">
+                      <button type="button" class="ink-btn" data-wb-action="attack" data-cost="20" data-i18n="wb.act_atk">Attaque · 20&nbsp;E</button>
+                      <button type="button" class="ink-btn" data-wb-action="defend" data-cost="10" data-i18n="wb.act_def">Défense · 10&nbsp;E</button>
+                      <button type="button" class="ink-btn" data-wb-action="timespell" data-cost="30" data-i18n="wb.act_time">Sort du Temps · 30&nbsp;E</button>
+                      <button type="button" class="ink-btn" data-wb-action="pass" data-cost="0" data-i18n="wb.act_pass">Passer · 0&nbsp;E</button>
+                    </div>
+                    <p class="ink-log" id="wb-sim-log">Tour 1 prêt — phase de quiz active (minuteur max 30 s).</p>
+                    <button type="button" id="wb-reset-sim-btn" class="ink-link small" data-i18n="wb.reset">↺ Réinitialiser le simulateur</button>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            <!-- Dedicated Media Showcase Frame -->
-            <div class="media-showcase-frame">
-              <div class="media-frame-topbar">
-                <span data-i18n="p1.media_label">APERÇU TACTIQUE 3D // PRÉ-CÂBLÉ : /public/assets/media/wise-battle.mp4</span>
-                <span style="color:#2ce59b;">● LIVE HUD PREVIEW</span>
-              </div>
-              <div class="media-stage">
-                <video class="media-video-el" data-video-src="/public/assets/media/wise-battle.mp4" autoplay loop muted playsinline></video>
-                <div class="media-placeholder-visual">
-                  <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
-                    <rect x="6" y="6" width="248" height="113" stroke="rgba(44,229,155,0.4)" stroke-dasharray="4 4" fill="rgba(12,28,22,0.7)" />
-                    <polygon points="48,86 72,42 96,86" stroke="#2ce59b" stroke-width="2" fill="rgba(44,229,155,0.15)" />
-                    <polygon points="164,86 188,36 212,86" stroke="#d4af37" stroke-width="2" fill="rgba(212,175,55,0.18)" />
-                    <path d="M72,60 Q130,20 188,56" stroke="#f7d665" stroke-width="2" stroke-dasharray="3 3" />
-                    <text x="130" y="24" text-anchor="middle" fill="#2ce59b" font-family="JetBrains Mono" font-size="9.5">1v1 NETCODE ARENA // 30s QUIZ TIMER</text>
-                    <text x="68" y="106" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="8.5">P1: GALIOS (100HP)</text>
-                    <text x="192" y="106" text-anchor="middle" fill="#f7d665" font-family="JetBrains Mono" font-size="8.5">P2: ALERIC (+15E)</text>
-                  </svg>
-                  <code class="media-path-code">Drop clip at: /public/assets/media/wise-battle.mp4</code>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- WISE BATTLE: 2 INTERACTIVE GAME DESIGN ARTIFACTS -->
-          <div class="artifacts-grid">
-            <!-- Artifact A: Interactive "30/30 Rule" Energy Economy & Turn State Machine Simulator -->
-            <div class="artifact-panel">
-              <div class="artifact-header">
-                <div>
-                  <span class="artifact-id-tag">ARTIFACT 01-A // INTERACTIVE STATE MACHINE & ECONOMY SIMULATOR</span>
-                  <h4 class="artifact-title" data-i18n="p1.artA_title">Simulateur Interactif « Règle 30/30 » : Économie d'Énergie & Machine à États</h4>
-                </div>
-                <button type="button" id="wb-reset-sim-btn" class="sim-btn">↺ Reset</button>
-              </div>
-
-              <div class="sim-control-row">
-                <div style="flex:1;min-width:180px;">
-                  <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.74rem;margin-bottom:0.25rem;">
-                    <span>Quiz Answer Speed (T): <strong id="wb-time-val" style="color:var(--theme-primary-bright);">12s</strong></span>
-                    <span>Max Timer: <strong id="wb-max-timer">30s</strong></span>
-                  </div>
-                  <input type="range" id="wb-time-slider" class="sim-slider" min="1" max="30" value="12" aria-label="Quiz Answer Time in Seconds" />
-                </div>
-                <button type="button" id="wb-p2-aid-btn" class="sim-btn" title="Toggle Player 2 Turn 1 Balancing Buff (+15 Energy)">
-                  P2 Aid: OFF (P1 Default)
-                </button>
-              </div>
-
-              <div class="sim-control-row">
-                <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-                  <button type="button" class="sim-btn active" data-wb-outcome="correct">✅ Correct (+T_rem E)</button>
-                  <button type="button" class="sim-btn" data-wb-outcome="wrong">❌ Wrong (-15E + Lock)</button>
-                  <button type="button" class="sim-btn" data-wb-outcome="timeout">⏱️ Timeout (0E + Forfeit)</button>
-                </div>
-                <button type="button" id="wb-resolve-quiz-btn" class="sim-btn" style="border-color:#2ce59b;color:#2ce59b;">
-                  ▶ Resolve Phase 1 (Quiz)
-                </button>
-              </div>
-
-              <div class="sim-telemetry-grid">
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">ENERGY DELTA</span>
-                  <span id="wb-delta-val" class="telemetry-val">+18 E</span>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">ENERGY POOL (MAX 100)</span>
-                  <span id="wb-energy-val" class="telemetry-val">25 / 100 E</span>
-                  <div class="vital-bar-track" style="margin-top:4px;"><div id="wb-energy-bar" class="vital-bar-fill vital-xp" style="width:25%;"></div></div>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">PHASE 2 STATUS</span>
-                  <span id="wb-phase-state" class="telemetry-val" style="font-size:0.78rem;">ACTION UNLOCKED</span>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">MATCH TURN CAP</span>
-                  <span id="wb-turn-count" class="telemetry-val">1 / 30</span>
-                </div>
-              </div>
-
-              <div>
-                <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);margin-bottom:0.35rem;">
-                  PHASE 2 — EXECUTE COMBAT ACTION (REQUIRES UNLOCKED ACTION PHASE):
-                </div>
-                <div class="wb-actions-grid">
-                  <button type="button" class="sim-btn" data-wb-action="attack" data-cost="20">⚔️ Attack (20E)</button>
-                  <button type="button" class="sim-btn" data-wb-action="defend" data-cost="10">🛡️ Defend (10E)</button>
-                  <button type="button" class="sim-btn" data-wb-action="timespell" data-cost="30">⏳ Unique Skill (30E)</button>
-                  <button type="button" class="sim-btn" data-wb-action="pass" data-cost="0">⏭️ Pass (0E)</button>
-                </div>
-              </div>
-
-              <div id="wb-sim-log" style="font-family:var(--font-mono);font-size:0.74rem;padding:0.55rem 0.75rem;background:rgba(0,0,0,0.55);border-left:3px solid #2ce59b;color:var(--text-main);">
-                Turn 1 Ready — Quiz Phase active (Max Timer: 30s).
-              </div>
-            </div>
-
-            <!-- Artifact B: Asymmetric Hero Roster & Architecture Inspector -->
-            <div class="artifact-panel">
-              <div class="artifact-header">
-                <div>
-                  <span class="artifact-id-tag">ARTIFACT 01-B // ASYMMETRIC BALANCING & UNITY C# ARCHITECTURE</span>
-                  <h4 class="artifact-title" data-i18n="p1.artB_title">Inspecteur de Roster Asymétrique & Architecture C# (ScriptableObjects)</h4>
-                </div>
-              </div>
-
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.45rem;">
-                <button type="button" class="sim-btn active" data-wb-hero="galios">🛡️ Galios (Tank)</button>
-                <button type="button" class="sim-btn" data-wb-hero="pokey">🗡️ Pokey (Assassin)</button>
-                <button type="button" class="sim-btn" data-wb-hero="aleric">⏳ Aleric (Mage)</button>
-              </div>
-
-              <div style="background:rgba(0,0,0,0.45);border:1px solid var(--border-subtle);padding:0.85rem;">
-                <div id="wb-hero-title" style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--theme-primary-bright);margin-bottom:0.55rem;">
-                  Galios (The Knight — Attrition Tank)
-                </div>
-                <div class="sim-telemetry-grid" style="margin-bottom:0.65rem;">
-                  <div class="telemetry-cell">
-                    <span class="telemetry-label">MAX HEALTH</span>
-                    <span id="wb-hero-hp" class="telemetry-val">100 HP</span>
-                  </div>
-                  <div class="telemetry-cell">
-                    <span class="telemetry-label">BASIC ATTACK</span>
-                    <span id="wb-hero-atk" class="telemetry-val">25 DMG (20E)</span>
-                  </div>
-                  <div class="telemetry-cell">
-                    <span class="telemetry-label">DEFEND STANCE</span>
-                    <span id="wb-hero-def" class="telemetry-val">15 Shield (10E)</span>
-                  </div>
-                </div>
-                <div style="font-size:0.82rem;margin-bottom:0.4rem;">
-                  <strong style="color:#2ce59b;font-family:var(--font-mono);">UNIQUE SKILL — <span id="wb-hero-skill-name">Shield Slam (50E)</span> :</strong>
-                  <span id="wb-hero-skill-desc">Deals 15 DMG + 50% chance to STUN the enemy, completely forfeiting their next turn.</span>
-                </div>
-                <div id="wb-hero-synergy" style="font-size:0.78rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);padding-top:0.45rem;">
-                  High HP & DEF let Galios bank energy across multiple turns to unleash game-swinging 50E Stun locks.
-                </div>
-              </div>
-
-              <button type="button" id="wb-code-toggle-btn" class="sim-btn" style="width:100%;text-align:center;">
-                Inspect C# ScriptableObject & BaseSkill Architecture ▼
-              </button>
-
-              <pre id="wb-code-drawer" class="code-drawer" hidden><code>[CreateAssetMenu(menuName = "WiseBattle/CharacterDataSO")]
+                  <div class="artifact" data-art-panel="1b">
+                    <div class="btn-group three">
+                      <button type="button" class="ink-btn active" data-wb-hero="galios">Galios · Tank</button>
+                      <button type="button" class="ink-btn" data-wb-hero="pokey">Pokey · Assassin</button>
+                      <button type="button" class="ink-btn" data-wb-hero="aleric">Aleric · Mage</button>
+                    </div>
+                    <div class="hero-card">
+                      <h4 id="wb-hero-title">Galios — le Chevalier (tank d’usure)</h4>
+                      <div class="tele-grid">
+                        <div class="tele"><span data-i18n="wb.hp">PV max</span><b id="wb-hero-hp">100 PV</b></div>
+                        <div class="tele"><span data-i18n="wb.atk">Attaque de base</span><b id="wb-hero-atk">25 DÉG (20 E)</b></div>
+                        <div class="tele"><span data-i18n="wb.def">Défense</span><b id="wb-hero-def">15 Bouclier (10 E)</b></div>
+                      </div>
+                      <p><b><span data-i18n="wb.uniq">Compétence unique —</span> <span id="wb-hero-skill-name">Heurt de Bouclier (50 E)</span> :</b> <span id="wb-hero-skill-desc"></span></p>
+                      <p class="hero-synergy" id="wb-hero-synergy"></p>
+                    </div>
+                    <button type="button" id="wb-code-toggle-btn" class="ink-btn wide">Inspect C# ScriptableObject & BaseSkill Architecture ▼</button>
+                    <pre id="wb-code-drawer" class="code-scroll" hidden><code>[CreateAssetMenu(menuName = "WiseBattle/CharacterDataSO")]
 public class CharacterDataSO : ScriptableObject {
     public string heroName;
     public int maxHP = 100;
-    public int baseAttack = 25;   // Costs 20 Energy
-    public int baseDefense = 15;  // Costs 10 Energy
-    public BaseSkillSO uniqueSkill; // Polymorphic SO reference
+    public int baseAttack = 25;   // costs 20 Energy
+    public int baseDefense = 15;  // costs 10 Energy
+    public BaseSkillSO uniqueSkill; // polymorphic SO reference
 }
 
 public abstract class BaseSkillSO : ScriptableObject {
@@ -404,626 +542,241 @@ public abstract class BaseSkillSO : ScriptableObject {
 }
 
 public class TimeSpellSkillSO : BaseSkillSO {
-    // Aleric (30E): +10s extra quiz timer for 3 turns -> supercharges +T_remaining Energy!
+    // Aleric (30E): +10s quiz timer for 3 turns -> more +T_remaining Energy
     public override void Execute(BattleContext ctx) {
-        ctx.ActiveUnit.ApplyStatus(new QuizTimerBonusEffect(bonusSeconds: 10f, durationTurns: 3));
+        ctx.ActiveUnit.ApplyStatus(new QuizTimerBonusEffect(10f, 3));
         ctx.PlayerAnimator.TriggerCast("TimeSpell");
     }
 }</code></pre>
-            </div>
-          </div>
-        </article>
-
-        <!-- ==================================================================
-             PROJECT 2: NARUTO: THE BOARD GAME (Tactical JRPG Tabletop — 2 to 8 Players)
-             ================================================================== -->
-        <article class="quest-card" data-project-theme="naruto" data-categories="systems,3cs,world">
-          <div class="quest-card-header">
-            <div>
-              <span class="quest-number-badge" data-i18n="p2.badge">QUÊTE #02 // JRPG TACTIQUE SUR PLATEAU & STRATÉGIE TERRITORIALE (2 À 8 JOUEURS)</span>
-              <h3 class="quest-title" data-i18n="p2.title">Naruto: The Board Game</h3>
-            </div>
-            <button type="button" class="sim-btn" data-activate-theme="naruto">
-              🍥 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
-            </button>
-          </div>
-
-          <div class="primary-skills-row">
-            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
-            <span class="skill-badge">Tabletop Systems Design</span>
-            <span class="skill-badge">Rulebook Writing</span>
-            <span class="skill-badge">Economy & Combat Balancing</span>
-            <span class="skill-badge">Board Layout Design</span>
-          </div>
-
-          <div class="metadata-hud-bar">
-            <span class="metadata-hud-item" data-i18n="p2.meta_role"><strong>Rôle :</strong> Solo Game Designer & Graphic Designer</span>
-            <span class="metadata-hud-item" data-i18n="p2.meta_stack"><strong>Outils :</strong> Illustrator, Canva, Équilibrage Tableur</span>
-            <span class="metadata-hud-item" data-i18n="p2.meta_scope"><strong>Tag :</strong> Étude de Systèmes Tabletop Non-Commerciale — Adaptation Fan IP</span>
-          </div>
-
-          <div class="quest-overview-grid">
-            <div class="quest-pitch-col">
-              <p class="high-concept-pitch" data-i18n="p2.pitch">
-                Un JRPG tactique sur plateau au tour par tour pour 2 à 8 joueurs à travers une boucle de 40 cases reliant les Quatre Villages Cachés, mêlant combat d'escouade Shinobi à main cachée, économie de défense territoriale et 3 modes de jeu.
-              </p>
-
-              <div class="playtest-iteration-box">
-                <div class="playtest-box-title">
-                  <span>🔬</span> <span data-i18n="p2.pdr_title">Journal d'Itération Playtest (Problème → Décision → Résultat)</span>
-                </div>
-                <div class="pdr-steps">
-                  <div class="pdr-step problem">
-                    <span class="pdr-tag">PROBLEM:</span>
-                    <span data-i18n="p2.pdr_prob">Effet boule de neige façon Monopoly où le premier acheteur taxait automatiquement tous les joueurs sans contre-jeu tactique, et combats d'usure trop lents.</span>
                   </div>
-                  <div class="pdr-step decision">
-                    <span class="pdr-tag">DECISION:</span>
-                    <span data-i18n="p2.pdr_dec">Introduction du « Power Check Territorial » (péage payé UNIQUEMENT si Puissance Totale de l'Équipe Active &lt; Défense du Lieu) et du « Full-HP Turn Reset » exigeant des combos explosifs ou passifs létaux.</span>
+                  <p class="folio">2</p>
+                </div>
+
+                <!-- SPREAD 2 · NARUTO (right — artifacts) -->
+                <div class="leaf" data-spread="2" data-side="right">
+                  <div class="art-tabs" role="tablist">
+                    <button type="button" class="art-tab is-on" data-art="2a"><b data-i18n="proj.artifact_a">Artefact A</b><span data-i18n="p2.artA"></span></button>
+                    <button type="button" class="art-tab" data-art="2b"><b data-i18n="proj.artifact_b">Artefact B</b><span data-i18n="p2.artB"></span></button>
                   </div>
-                  <div class="pdr-step result">
-                    <span class="pdr-tag">RESULT:</span>
-                    <span data-i18n="p2.pdr_res">Tension tactique constante : les joueurs adaptent la composition de leur main active (3 max) au tour 1 pour franchir les territoires ennemis.</span>
+
+                  <div class="artifact is-on" data-art-panel="2a">
+                    <div class="board-grid" role="group" data-i18n-aria="nar.board_aria" aria-label="Cases clés du plateau de 40 cases">
+                      <button type="button" class="tile-btn active" data-naruto-tile="1"><b>1</b><span data-i18n="nar.t1">Départ · +SP</span></button>
+                      <button type="button" class="tile-btn" data-naruto-tile="4"><b>4</b><span data-i18n="nar.t4">Konoha · 35 DÉF</span></button>
+                      <button type="button" class="tile-btn" data-naruto-tile="6"><b>6·16·26·36</b><span data-i18n="nar.t6">Bureaux Kage</span></button>
+                      <button type="button" class="tile-btn" data-naruto-tile="8"><b>8</b><span data-i18n="nar.t8">Pioche Shinobi</span></button>
+                      <button type="button" class="tile-btn" data-naruto-tile="9"><b>9</b><span data-i18n="nar.t9">Quêtes annexes</span></button>
+                      <button type="button" class="tile-btn" data-naruto-tile="11"><b>11·31</b><span data-i18n="nar.t11">Pièges Genjutsu</span></button>
+                      <button type="button" class="tile-btn wide" data-naruto-tile="21"><b>21</b><span data-i18n="nar.t21">Pioche Légendaire (11+ aux 2D6)</span></button>
+                      <button type="button" class="ink-btn wide" id="naruto-roll-2d6-btn" data-i18n="nar.roll">Lancer 2D6 pour la Case 21</button>
+                    </div>
+                    <div class="ink-note">
+                      <b id="naruto-tile-title">Case 1 — Ligne de départ (fin de tour de plateau)</b>
+                      <p id="naruto-tile-rule"></p>
+                      <p class="roll-result" id="naruto-2d6-result"></p>
+                    </div>
+                    <div class="ctrl-row column">
+                      <div class="ctrl-line"><span data-i18n="nar.power_lbl">Village de la Feuille 1 (100 SP · 35 DÉF) vs puissance active</span><b id="naruto-party-power-val">25 PUIS</b></div>
+                      <input type="range" id="naruto-party-power-slider" class="ink-slider" min="10" max="75" value="25" data-i18n-aria="nar.power_aria" aria-label="Puissance totale de l’équipe active" />
+                      <p class="toll" id="naruto-toll-result"></p>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            <!-- Dedicated Media Showcase Frame -->
-            <div class="media-showcase-frame">
-              <div class="media-frame-topbar">
-                <span data-i18n="p2.media_label">PLATEAU 40 CASES // PRÉ-CÂBLÉ : /public/assets/media/naruto-board-game.mp4</span>
-                <span style="color:#ff6b1a;">● TABLETOP SYSTEM</span>
-              </div>
-              <div class="media-stage">
-                <video class="media-video-el" data-video-src="/public/assets/media/naruto-board-game.mp4" autoplay loop muted playsinline></video>
-                <div class="media-placeholder-visual">
-                  <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
-                    <rect x="20" y="10" width="220" height="105" stroke="#ff6b1a" stroke-width="2" fill="rgba(29,12,15,0.8)" />
-                    <rect x="44" y="28" width="172" height="69" stroke="rgba(255,158,68,0.4)" stroke-dasharray="3 3" />
-                    <circle cx="20" cy="10" r="6" fill="#ff9e44" />
-                    <circle cx="240" cy="10" r="6" fill="#ef4444" />
-                    <circle cx="240" cy="115" r="6" fill="#ff9e44" />
-                    <circle cx="20" cy="115" r="6" fill="#ef4444" />
-                    <text x="130" y="55" text-anchor="middle" fill="#ff9e44" font-family="Cinzel" font-weight="700" font-size="11">4 HIDDEN VILLAGES // 40 TILES</text>
-                    <text x="130" y="75" text-anchor="middle" fill="#f2ece1" font-family="JetBrains Mono" font-size="9">ACTIVE PARTY (3) + RESERVE (2)</text>
-                  </svg>
-                  <code class="media-path-code">Drop clip at: /public/assets/media/naruto-board-game.mp4</code>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- NARUTO: 2 INTERACTIVE GAME DESIGN ARTIFACTS -->
-          <div class="artifacts-grid">
-            <!-- Artifact A: 40-Tile Board Loop & Territory Defense Calculator -->
-            <div class="artifact-panel">
-              <div class="artifact-header">
-                <div>
-                  <span class="artifact-id-tag">ARTIFACT 02-A // 40-TILE TOPOLOGY & TERRITORY POWER CHECK</span>
-                  <h4 class="artifact-title" data-i18n="p2.artA_title">Boucle de Plateau 40 Cases & Calculateur de Défense Territoriale</h4>
-                </div>
-              </div>
-
-              <div class="board-loop-grid" role="group" aria-label="40-Tile Board Key Nodes">
-                <button type="button" class="board-tile-btn active" data-naruto-tile="1">🏁 Tile 1<br/>Start (+SP)</button>
-                <button type="button" class="board-tile-btn" data-naruto-tile="4">🍃 Tile 4<br/>Leaf V1 (35D)</button>
-                <button type="button" class="board-tile-btn" data-naruto-tile="6">🏯 Tiles 6/16/26/36<br/>4 Kage Offices</button>
-                <button type="button" class="board-tile-btn" data-naruto-tile="8">🎴 Tile 8<br/>Shinobi Draw</button>
-                <button type="button" class="board-tile-btn" data-naruto-tile="9">📜 Tile 9<br/>Side Quests (3)</button>
-                <button type="button" class="board-tile-btn" data-naruto-tile="11">👁️ Tiles 11 & 31<br/>Genjutsu Traps</button>
-                <button type="button" class="board-tile-btn" data-naruto-tile="21" style="grid-column: span 2;">🐉 Tile 21 — Legendary Draw (Roll 11+ on 2D6)</button>
-                <button type="button" id="naruto-roll-2d6-btn" class="sim-btn" style="grid-column: span 2;border-color:#ff9e44;color:#ff9e44;">🎲 Roll 2D6 for Tile 21</button>
-              </div>
-
-              <div style="background:rgba(0,0,0,0.5);border-left:3px solid #ff6b1a;padding:0.6rem 0.8rem;font-size:0.8rem;">
-                <strong id="naruto-tile-title" style="color:#ff9e44;display:block;font-family:var(--font-mono);">Tile 1 — Starting Line (Tour Completion)</strong>
-                <span id="naruto-tile-rule" style="color:var(--text-secondary);">Grants +1000 SP (Normal Mode) or +1500 SP (Shinobis War Mode). Unlocks swapping between Active Party (max 3 in hand) and Inactive Party (max 2 reserve).</span>
-                <div id="naruto-2d6-result" style="font-family:var(--font-mono);font-size:0.73rem;margin-top:0.35rem;color:#fbbf24;"></div>
-              </div>
-
-              <div class="sim-control-row" style="flex-direction:column;align-items:stretch;">
-                <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.74rem;">
-                  <span>Hidden Leaf Village 1 (100 SP | <strong>35 DEF</strong>) vs Your Active Party Power:</span>
-                  <strong id="naruto-party-power-val" style="color:#ff9e44;">25 PWR</strong>
-                </div>
-                <input type="range" id="naruto-party-power-slider" class="sim-slider" min="10" max="75" value="25" aria-label="Active Party Total Power" />
-                <div id="naruto-toll-result" style="font-family:var(--font-mono);font-size:0.75rem;font-weight:700;"></div>
-              </div>
-            </div>
-
-            <!-- Artifact B: Blind-Target Party Combat & 3-Mode Balancing Matrix -->
-            <div class="artifact-panel">
-              <div class="artifact-header">
-                <div>
-                  <span class="artifact-id-tag">ARTIFACT 02-B // BLIND-HAND COMBAT & 3-MODE VICTORY MATRIX</span>
-                  <h4 class="artifact-title" data-i18n="p2.artB_title">Simulateur de Combat Aveugle (3 Cartes) & Matrice des 3 Modes de Jeu</h4>
-                </div>
-                <button type="button" id="naruto-reset-cards-btn" class="sim-btn">🔀 Shuffle Hand</button>
-              </div>
-
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-secondary);">
-                  Attacker: <strong>Kakashi's Chidori (60 DMG, 1-Tile)</strong>
-                </span>
-                <button type="button" id="naruto-sakura-passive-btn" class="sim-btn">
-                  Sakura's Healthy Dice Passive: OFF
-                </button>
-              </div>
-
-              <div class="blind-cards-row">
-                <div class="shinobi-card-slot" data-blind-card="0" role="button" tabindex="0"></div>
-                <div class="shinobi-card-slot" data-blind-card="1" role="button" tabindex="0"></div>
-                <div class="shinobi-card-slot" data-blind-card="2" role="button" tabindex="0"></div>
-              </div>
-
-              <div id="naruto-combat-readout" style="font-family:var(--font-mono);font-size:0.72rem;padding:0.5rem 0.7rem;background:rgba(0,0,0,0.45);border-left:3px solid #ff9e44;"></div>
-
-              <div style="overflow-x:auto;">
-                <table class="mode-table">
-                  <thead>
-                    <tr>
-                      <th>Game Mode</th>
-                      <th>Start SP & Roster</th>
-                      <th>Mercy & Special Rules / Win Conditions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><strong>Normal Mode</strong></td>
-                      <td>2000 SP | 1 Common</td>
-                      <td>2 Mercies | +1000 SP/Tour | Kage Office or Elimination Win</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Shinobis War</strong></td>
-                      <td>4000 SP | 3 Shinobis</td>
-                      <td>0 Mercy | Round 1 Peace Treaty | +1500 SP/Tour</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Alliance Team</strong></td>
-                      <td>Shared Reserve (2)</td>
-                      <td>1-Tile Downed/Revive (500 SP or 3+ roll) vs Finishing Blow (5+)</td>
-                    </tr>
-                    <tr>
-                      <td colspan="3" style="color:#f87171;">
-                        🌙 <strong>Red Moon Right of Victory (Rare):</strong> Unlock <em>The Masked One (TMO)</em> & channel a 3-round player capture without interruption!
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <!-- ==================================================================
-             PROJECT 3: MAGIC WORDS (2D Local PvP Wizard Word Duel — itch.io)
-             ================================================================== -->
-        <article class="quest-card" data-project-theme="magic-words" data-categories="tech,systems,3cs">
-          <div class="quest-card-header">
-            <div>
-              <span class="quest-number-badge" data-i18n="p3.badge">QUÊTE #03 // DUEL DE SORCIERS PVP LOCAL 2D — PUBLIÉ SUR ITCH.IO</span>
-              <h3 class="quest-title" data-i18n="p3.title">Magic Words</h3>
-            </div>
-            <button type="button" class="sim-btn" data-activate-theme="magic-words">
-              🔮 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
-            </button>
-          </div>
-
-          <div class="primary-skills-row">
-            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
-            <span class="skill-badge">Combat Balancing</span>
-            <span class="skill-badge">Procedural Systems</span>
-            <span class="skill-badge">Unity C#</span>
-            <span class="skill-badge">2D Pixel Art</span>
-          </div>
-
-          <div class="metadata-hud-bar">
-            <span class="metadata-hud-item" data-i18n="p3.meta_role"><strong>Rôle :</strong> Solo Game Designer, Pixel Artist & Développeur Unity</span>
-            <span class="metadata-hud-item" data-i18n="p3.meta_stack"><strong>Stack :</strong> Unity 2D, C#, Aseprite</span>
-            <span class="metadata-hud-item" data-i18n="p3.meta_scope"><strong>Plateforme :</strong> PC / Web (Publié sur itch.io)</span>
-          </div>
-
-          <div class="quest-overview-grid">
-            <div class="quest-pitch-col">
-              <p class="high-concept-pitch" data-i18n="p3.pitch">
-                Un duel de sorciers 1v1 en multijoueur local pixel-art inspiré de Bookworm Adventures, où les joueurs forgent à tour de rôle des mots anglais de 3+ lettres à partir d'un tirage aléatoire pour lancer des déflagrations magiques ou des soins tactiques.
-              </p>
-
-              <div class="playtest-iteration-box">
-                <div class="playtest-box-title">
-                  <span>🔬</span> <span data-i18n="p3.pdr_title">Journal d'Itération Playtest (Problème → Décision → Résultat)</span>
-                </div>
-                <div class="pdr-steps">
-                  <div class="pdr-step problem">
-                    <span class="pdr-tag">PROBLEM:</span>
-                    <span data-i18n="p3.pdr_prob">Deux problèmes majeurs en playtest : (1) tirages de 9 consonnes rendant le tour injouable, et (2) spam de mots courts de 3 lettres en soin prolongeant les duels indéfiniment.</span>
+                  <div class="artifact" data-art-panel="2b">
+                    <div class="ctrl-row">
+                      <span class="ctrl-caption"><span data-i18n="nar.atk_lbl">Attaquant&nbsp;:</span> <b data-i18n="nar.atk_val">Chidori de Kakashi (60 DÉG, portée 1 case)</b></span>
+                      <button type="button" id="naruto-sakura-passive-btn" class="ink-btn">Passif « Healthy Dice » de Sakura : OFF</button>
+                    </div>
+                    <div class="card-row">
+                      <div class="shinobi-card" data-blind-card="0" role="button" tabindex="0"></div>
+                      <div class="shinobi-card" data-blind-card="1" role="button" tabindex="0"></div>
+                      <div class="shinobi-card" data-blind-card="2" role="button" tabindex="0"></div>
+                    </div>
+                    <p class="ink-log" id="naruto-combat-readout"></p>
+                    <button type="button" id="naruto-reset-cards-btn" class="ink-link small" data-i18n="nar.shuffle">↺ Mélanger la main</button>
+                    <div class="table-scroll">
+                      <table class="mode-table">
+                        <thead><tr><th data-i18n="nar.th_mode">Mode</th><th data-i18n="nar.th_sp">SP & équipe de départ</th><th data-i18n="nar.th_rules">Grâce & règles spéciales</th></tr></thead>
+                        <tbody>
+                          <tr><td><b>Normal</b></td><td data-i18n="nar.m1_sp">2000 SP · 1 Shinobi</td><td data-i18n="nar.m1_r">2 Grâces · +1000 SP/tour · Victoire Kage ou élimination</td></tr>
+                          <tr><td><b data-i18n="nar.m2_n">Guerre Shinobi</b></td><td data-i18n="nar.m2_sp">4000 SP · 3 Shinobis</td><td data-i18n="nar.m2_r">0 Grâce · Trêve au tour 1 · +1500 SP/tour</td></tr>
+                          <tr><td><b>Alliance</b></td><td data-i18n="nar.m3_sp">Réserve partagée (2)</td><td data-i18n="nar.m3_r">À terre / Réanimation à 1 case (500 SP ou 3+) vs coup fatal (5+)</td></tr>
+                          <tr><td colspan="3" class="red-moon" data-i18n="nar.redmoon">🌙 Droit de Victoire Lune Rouge : débloquer l’Homme Masqué (TMO) et canaliser 3 tours de capture sans interruption.</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                  <div class="pdr-step decision">
-                    <span class="pdr-tag">DECISION:</span>
-                    <span data-i18n="p3.pdr_dec">Programmation d'un algorithme C# de sac pondéré garantissant 2 à 3 voyelles minimum par tirage, et courbe exponentielle des dégâts d'attaque surclassant le plafond de soin dès 5+ lettres.</span>
+                  <p class="folio">4</p>
+                </div>
+
+                <!-- SPREAD 3 · MAGIC WORDS (right — artifacts) -->
+                <div class="leaf" data-spread="3" data-side="right">
+                  <div class="art-tabs" role="tablist">
+                    <button type="button" class="art-tab is-on" data-art="3a"><b data-i18n="proj.artifact_a">Artefact A</b><span data-i18n="p3.artA"></span></button>
+                    <button type="button" class="art-tab" data-art="3b"><b data-i18n="proj.artifact_b">Artefact B</b><span data-i18n="p3.artB"></span></button>
                   </div>
-                  <div class="pdr-step result">
-                    <span class="pdr-tag">RESULT:</span>
-                    <span data-i18n="p3.pdr_res">Zéro tour mort signalé et durée moyenne de duel ramenée de 14 minutes à 5 minutes intenses.</span>
+
+                  <div class="artifact is-on" data-art-panel="3a">
+                    <div class="ctrl-row column">
+                      <div class="ctrl-line"><span><span data-i18n="mw.len_lbl">Longueur du mot forgé&nbsp;:</span> <b id="mw-length-val">5 lettres</b></span><span><span data-i18n="mw.ex_lbl">Exemple&nbsp;:</span> <b id="mw-sample-word">« FLAME »</b></span></div>
+                      <input type="range" id="mw-length-slider" class="ink-slider" min="3" max="8" value="5" data-i18n-aria="mw.len_aria" aria-label="Longueur du mot, de 3 à 8+ lettres" />
+                    </div>
+                    <div class="tele-grid">
+                      <div class="tele"><span data-i18n="mw.atk">Déflagration</span><b id="mw-atk-val">32 DÉG</b></div>
+                      <div class="tele"><span data-i18n="mw.heal">Soin personnel</span><b id="mw-heal-val">+18 PV</b></div>
+                      <div class="tele"><span data-i18n="mw.ratio">Ratio attaque / soin</span><b id="mw-ratio-val">1.78×</b></div>
+                    </div>
+                    <svg class="curve" viewBox="0 0 300 115" aria-hidden="true">
+                      <line x1="30" y1="95" x2="275" y2="95" class="axis" />
+                      <polyline class="atk" points="30,85 78,78 126,66 174,50 222,30 270,12" />
+                      <polyline class="heal" points="30,88 78,84 126,80 174,76 222,73 270,70" />
+                      <line id="mw-svg-marker" x1="126" y1="8" x2="126" y2="95" class="marker" />
+                      <text x="36" y="22" class="atk-t" data-i18n="mw.svg_atk">— Dégâts d’attaque (exponentiels)</text>
+                      <text x="36" y="36" class="heal-t" data-i18n="mw.svg_heal">- - Soin personnel (pente plafonnée)</text>
+                    </svg>
+                    <p class="ink-note-p" id="mw-scaling-note"></p>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            <!-- Dedicated Media Showcase Frame -->
-            <div class="media-showcase-frame">
-              <div class="media-frame-topbar">
-                <span data-i18n="p3.media_label">ARÈNE PIXEL ART // PRÉ-CÂBLÉ : /public/assets/media/magic-words.mp4</span>
-                <span style="color:#b565ff;">● ITCH.IO RELEASE</span>
-              </div>
-              <div class="media-stage">
-                <video class="media-video-el" data-video-src="/public/assets/media/magic-words.mp4" autoplay loop muted playsinline></video>
-                <div class="media-placeholder-visual">
-                  <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
-                    <rect x="10" y="10" width="240" height="105" stroke="#b565ff" stroke-width="2" fill="rgba(23,13,40,0.8)" />
-                    <text x="130" y="42" text-anchor="middle" fill="#5ce1e6" font-family="Cinzel" font-weight="700" font-size="14">[ A ] [ R ] [ C ] [ A ] [ N ] [ E ]</text>
-                    <path d="M55,75 L205,75" stroke="#b565ff" stroke-width="3" stroke-dasharray="6 4" />
-                    <circle cx="48" cy="75" r="12" fill="rgba(181,101,255,0.3)" stroke="#b565ff" stroke-width="2" />
-                    <circle cx="212" cy="75" r="12" fill="rgba(92,225,230,0.3)" stroke="#5ce1e6" stroke-width="2" />
-                    <text x="130" y="102" text-anchor="middle" fill="#f2ece1" font-family="JetBrains Mono" font-size="9">6-LETTER SPELL: 48 DMG BLAST vs 22 HP HEAL</text>
-                  </svg>
-                  <code class="media-path-code">Drop clip at: /public/assets/media/magic-words.mp4</code>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MAGIC WORDS: 2 INTERACTIVE GAME DESIGN ARTIFACTS -->
-          <div class="artifacts-grid">
-            <!-- Artifact A: Word-Length Damage vs. Heal Scaling Simulator -->
-            <div class="artifact-panel">
-              <div class="artifact-header">
-                <div>
-                  <span class="artifact-id-tag">ARTIFACT 03-A // ANTI-STALL COMBAT CURVE SIMULATOR</span>
-                  <h4 class="artifact-title" data-i18n="p3.artA_title">Simulateur de Courbe : Dégâts d'Attaque vs Soin selon la Longueur du Mot</h4>
-                </div>
-              </div>
-
-              <div class="sim-control-row" style="flex-direction:column;align-items:stretch;">
-                <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.75rem;">
-                  <span>Forged Word Length: <strong id="mw-length-val" style="color:#5ce1e6;">5 Letters</strong></span>
-                  <span>Example Spell: <strong id="mw-sample-word" style="color:#b565ff;">"FLAME"</strong></span>
-                </div>
-                <input type="range" id="mw-length-slider" class="sim-slider" min="3" max="8" value="5" aria-label="Word Length (3 to 8+ letters)" />
-              </div>
-
-              <div class="sim-telemetry-grid">
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">ATTACK BLAST DMG</span>
-                  <span id="mw-atk-val" class="telemetry-val" style="color:#b565ff;">32 DMG</span>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">TACTICAL SELF-HEAL</span>
-                  <span id="mw-heal-val" class="telemetry-val" style="color:#4ade80;">+18 HP</span>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">OFFENSE / HEAL RATIO</span>
-                  <span id="mw-ratio-val" class="telemetry-val" style="color:#5ce1e6;">1.78× Offense</span>
-                </div>
-              </div>
-
-              <!-- SVG Dual Scaling Curve -->
-              <svg width="100%" height="115" viewBox="0 0 300 115" style="background:rgba(0,0,0,0.45);border:1px solid var(--border-subtle);">
-                <!-- Grid lines -->
-                <line x1="30" y1="95" x2="275" y2="95" stroke="rgba(255,255,255,0.15)" />
-                <!-- Attack Curve (Exponential) -->
-                <polyline fill="none" stroke="#b565ff" stroke-width="3" points="30,85 78,78 126,66 174,50 222,30 270,12" />
-                <!-- Heal Curve (Diminishing Returns Cap) -->
-                <polyline fill="none" stroke="#4ade80" stroke-width="2.5" stroke-dasharray="4 3" points="30,88 78,84 126,80 174,76 222,73 270,70" />
-                <!-- Active Length Marker -->
-                <line id="mw-svg-marker" x1="126" y1="8" x2="126" y2="95" stroke="#5ce1e6" stroke-width="1.5" stroke-dasharray="2 2" />
-                <text x="35" y="22" fill="#b565ff" font-family="JetBrains Mono" font-size="9" font-weight="700">— Attack DMG (Quadratic)</text>
-                <text x="35" y="36" fill="#4ade80" font-family="JetBrains Mono" font-size="9">-- Self-Heal (Capped Slope)</text>
-              </svg>
-
-              <div id="mw-scaling-note" style="font-size:0.78rem;color:var(--text-secondary);"></div>
-            </div>
-
-            <!-- Artifact B: Vowel-Guaranteed Letter Pool Algorithm -->
-            <div class="artifact-panel">
-              <div class="artifact-header">
-                <div>
-                  <span class="artifact-id-tag">ARTIFACT 03-B // PROCEDURAL LETTER BAG & CONSONANT-DROUGHT PREVENTION</span>
-                  <h4 class="artifact-title" data-i18n="p3.artB_title">Algorithme de Tirage à Voyelles Garanties & Logique C#</h4>
-                </div>
-              </div>
-
-              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                <button type="button" id="mw-roll-guaranteed-btn" class="sim-btn active">
-                  ✨ Roll Vowel-Guaranteed Rack (2–3 Vowels)
-                </button>
-                <button type="button" id="mw-roll-naive-btn" class="sim-btn">
-                  ⚠️ Simulate Naive RNG Drought
-                </button>
-              </div>
-
-              <div id="mw-letter-pool-grid" class="letter-pool-grid" aria-label="9-Tile Wizard Letter Rack"></div>
-
-              <div id="mw-pool-status" style="font-family:var(--font-mono);font-size:0.74rem;font-weight:700;"></div>
-
-              <pre class="code-drawer"><code>public List&lt;char&gt; GenerateBalancedRack(int rackSize = 9) {
+                  <div class="artifact" data-art-panel="3b">
+                    <div class="btn-group">
+                      <button type="button" id="mw-roll-guaranteed-btn" class="ink-btn active" data-i18n="mw.btn_fair">Tirer un chevalet garanti (2–3 voyelles)</button>
+                      <button type="button" id="mw-roll-naive-btn" class="ink-btn" data-i18n="mw.btn_naive">Simuler un tirage naïf</button>
+                    </div>
+                    <div id="mw-letter-pool-grid" class="rune-rack" data-i18n-aria="mw.rack_aria" aria-label="Chevalet de 9 lettres"></div>
+                    <p class="pool-status" id="mw-pool-status"></p>
+                    <pre class="code-scroll"><code>public List&lt;char&gt; GenerateBalancedRack(int rackSize = 9) {
     var rack = new List&lt;char&gt;(rackSize);
-    int guaranteedVowels = Random.Range(2, 4); // Enforces 2-3 Vowels minimum
+    int guaranteedVowels = Random.Range(2, 4); // 2-3 vowels minimum
     while (rack.Count &lt; guaranteedVowels)
         rack.Add(DrawWithDuplicateCap(VowelBag, rack, maxDupes: 2));
     while (rack.Count &lt; rackSize)
         rack.Add(DrawWithDuplicateCap(ConsonantBag, rack, maxDupes: 2));
-    return Shuffle(rack); // Zero dead turns in 100% of PvP rounds
+    return Shuffle(rack); // no more dead turns
 }</code></pre>
-            </div>
-          </div>
-        </article>
-
-        <!-- ==================================================================
-             PROJECT 4: BALLOON OF THE COUNTRIES (2D Turn-Based Mobile Geography)
-             ================================================================== -->
-        <article class="quest-card" data-project-theme="balloon" data-categories="3cs,ux,systems">
-          <div class="quest-card-header">
-            <div>
-              <span class="quest-number-badge" data-i18n="p4.badge">QUÊTE #04 // JEU DE GÉOGRAPHIE MOBILE AU TOUR PAR TOUR 2D — PUBLIÉ SUR ITCH.IO</span>
-              <h3 class="quest-title" data-i18n="p4.title">Balloon of the Countries</h3>
-            </div>
-            <button type="button" class="sim-btn" data-activate-theme="balloon">
-              🎈 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
-            </button>
-          </div>
-
-          <div class="primary-skills-row">
-            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
-            <span class="skill-badge">Mobile UI/UX</span>
-            <span class="skill-badge">Turn-Based Pacing</span>
-            <span class="skill-badge">Progression Design</span>
-            <span class="skill-badge">2D Game Art</span>
-          </div>
-
-          <div class="metadata-hud-bar">
-            <span class="metadata-hud-item" data-i18n="p4.meta_role"><strong>Rôle :</strong> Solo Game Designer & Développeur Unity</span>
-            <span class="metadata-hud-item" data-i18n="p4.meta_stack"><strong>Stack :</strong> Unity 2D, C#, Aseprite, Illustrator</span>
-            <span class="metadata-hud-item" data-i18n="p4.meta_scope"><strong>Plateforme :</strong> Mobile / itch.io</span>
-          </div>
-
-          <div class="quest-overview-grid">
-            <div class="quest-pitch-col">
-              <p class="high-concept-pitch" data-i18n="p4.pitch">
-                Un jeu 2D vibrant de géographie et de stratégie au tour par tour en multijoueur local (Pass-and-Play), conçu pour des sessions mobiles rapides et publié sur itch.io.
-              </p>
-
-              <div class="playtest-iteration-box">
-                <div class="playtest-box-title">
-                  <span>🔬</span> <span data-i18n="p4.pdr_title">Journal d'Itération Playtest (Problème → Décision → Résultat)</span>
-                </div>
-                <div class="pdr-steps">
-                  <div class="pdr-step problem">
-                    <span class="pdr-tag">PROBLEM:</span>
-                    <span data-i18n="p4.pdr_prob">Confusion lors du passage du téléphone entre joueurs : double HUD encombré et clics accidentels pendant la transition de tour.</span>
+                    <p class="ink-note-p" data-i18n="mw.note">Note de playtest : les soins à 3 lettres ont été réduits dès que la courbe d’attaque les a dépassés à partir de 5 lettres, mettant fin aux duels bloqués.</p>
                   </div>
-                  <div class="pdr-step decision">
-                    <span class="pdr-tag">DECISION:</span>
-                    <span data-i18n="p4.pdr_dec">Refonte complète vers un HUD Pass-and-Play à écran unique avec écran intercalaire de relais, indicateurs de tour codés par couleur et contrôles regroupés dans la zone du pouce.</span>
+                  <p class="folio">6</p>
+                </div>
+
+                <!-- SPREAD 4 · BALLOON (right — artifacts) -->
+                <div class="leaf" data-spread="4" data-side="right">
+                  <div class="art-tabs" role="tablist">
+                    <button type="button" class="art-tab is-on" data-art="4a"><b data-i18n="proj.artifact_a">Artefact A</b><span data-i18n="p4.artA"></span></button>
+                    <button type="button" class="art-tab" data-art="4b"><b data-i18n="proj.artifact_b">Artefact B</b><span data-i18n="p4.artB"></span></button>
                   </div>
-                  <div class="pdr-step result">
-                    <span class="pdr-tag">RESULT:</span>
-                    <span data-i18n="p4.pdr_res">Transitions de tour 2× plus rapides sur mobile et suppression totale des erreurs de saisie entre joueurs.</span>
+
+                  <div class="artifact is-on" data-art-panel="4a">
+                    <div class="btn-group">
+                      <button type="button" id="bal-wire-before-btn" class="ink-btn" data-i18n="bal.before">Avant · double HUD encombré</button>
+                      <button type="button" id="bal-wire-after-btn" class="ink-btn active" data-i18n="bal.after">Après · HUD ergonomique unique</button>
+                    </div>
+                    <div id="bal-wireframe-stage" class="wire-stage"></div>
                   </div>
+
+                  <div class="artifact" data-art-panel="4b">
+                    <div class="ctrl-row column">
+                      <div class="ctrl-line"><span data-i18n="bal.prog">Progression du match</span><b id="bal-round-val">Manche 4 / 10</b></div>
+                      <input type="range" id="bal-round-slider" class="ink-slider" min="1" max="10" value="4" data-i18n-aria="bal.round_aria" aria-label="Manche" />
+                    </div>
+                    <div class="tele-grid">
+                      <div class="tele"><span data-i18n="bal.mult">Multiplicateur de score</span><b id="bal-mult-val">2.05×</b></div>
+                      <div class="tele"><span data-i18n="bal.wind">Dérive du vent</span><b id="bal-wind-val">Vent 28 nœuds</b></div>
+                      <div class="tele"><span data-i18n="bal.bull">Score plein centre</span><b id="bal-score-val">+513 PTS</b></div>
+                    </div>
+                    <svg class="curve" viewBox="0 0 300 90" aria-hidden="true">
+                      <polyline class="atk" points="20,76 50,69 80,62 110,54 140,46 170,38 200,30 230,22 260,15 285,9" />
+                      <text x="26" y="22" class="atk-t" data-i18n="bal.svg_mult">Multiplicateur risque/récompense, manche 1 → 10</text>
+                    </svg>
+                  </div>
+                  <p class="folio">8</p>
+                </div>
+
+                <!-- SPREAD 5 · QUEST 05 (right — rune-locked seal + prototype hook) -->
+                <div class="leaf leaf-blueprint" data-spread="5" data-side="right">
+                  <div class="rune-lock">
+                    <svg class="rune-lock-svg" viewBox="0 0 220 220" aria-hidden="true">
+                      <g fill="none" stroke="currentColor">
+                        <circle cx="110" cy="110" r="96" stroke-width="2" />
+                        <circle cx="110" cy="110" r="80" stroke-width="1" stroke-dasharray="2 6" />
+                        <circle cx="110" cy="110" r="52" stroke-width="1.6" />
+                      </g>
+                      <g class="rune-ring" font-family="Cinzel, serif" font-size="16" fill="currentColor" text-anchor="middle">
+                        <text x="110" y="34">ᚠ</text><text x="186" y="116">ᚱ</text><text x="110" y="198">ᛉ</text><text x="34" y="116">ᛋ</text>
+                        <text x="164" y="58">ᚨ</text><text x="164" y="172">ᛏ</text><text x="56" y="172">ᛒ</text><text x="56" y="58">ᚷ</text>
+                      </g>
+                    </svg>
+                    <div class="wax-seal" aria-hidden="true"><span>V</span></div>
+                  </div>
+                  <p class="seal-state" data-i18n="p5.seal">Sceau runique intact</p>
+                  <button type="button" class="ink-btn primary" id="slot05-scan-btn"><span data-i18n="p5.scan">Inspecter le sceau</span></button>
+                  <p class="ink-log" id="slot05-telemetry-readout">Mount: #playable-prototype-stage — ready.</p>
+                  <!-- Modular hook: mount the playable 2D prototype here later -->
+                  <div id="playable-prototype-stage" class="prototype-stage" data-prototype-hook="ready" hidden></div>
+                  <p class="folio">10</p>
+                </div>
+
+                <!-- SPREAD 6 · CONTACT (right) -->
+                <div class="leaf" data-spread="6" data-side="right">
+                  <h2 class="page-title" id="contact-title" data-i18n="contact.title">Contact & CV</h2>
+                  <svg class="divider" aria-hidden="true"><use href="#divider" /></svg>
+                  <p class="contact-lead" data-i18n="contact.lead"></p>
+                  <div class="contact-seal" aria-hidden="true"><span>AA</span></div>
+                  <div class="contact-actions">
+                    <button type="button" class="gilded-btn small" data-copy-email><span aria-hidden="true">🕊️</span> <span data-i18n="contact.email">Copier l’email</span></button>
+                    <a class="ink-btn link" data-contact="cv" href="public/assets/Ahmed_Awedni_CV.pdf" download="Ahmed_Awedni_CV.pdf"><span aria-hidden="true">📜</span> <span data-i18n="contact.cv">Télécharger le CV (PDF)</span></a>
+                    <a class="ink-btn link" data-contact="github" href="https://github.com/ahmedAwedni" target="_blank" rel="noopener noreferrer"><span data-i18n="contact.github">GitHub</span></a>
+                    <a class="ink-btn link" data-contact="linkedin" href="https://www.linkedin.com/in/ahmed-awedni/" target="_blank" rel="noopener noreferrer"><span data-i18n="contact.linkedin">LinkedIn</span></a>
+                  </div>
+                  <p class="contact-mail">ahmed.awadni.jr@gmail.com</p>
+                  <p class="folio">12</p>
                 </div>
               </div>
+              <button type="button" class="corner corner-next" id="corner-next" data-i18n-aria="nav.next" aria-label="Page suivante"></button>
             </div>
 
-            <!-- Dedicated Media Showcase Frame -->
-            <div class="media-showcase-frame">
-              <div class="media-frame-topbar">
-                <span data-i18n="p4.media_label">HUD MOBILE 2D // PRÉ-CÂBLÉ : /public/assets/media/balloon-countries.mp4</span>
-                <span style="color:#38bdf8;">● MOBILE PASS & PLAY</span>
-              </div>
-              <div class="media-stage">
-                <video class="media-video-el" data-video-src="/public/assets/media/balloon-countries.mp4" autoplay loop muted playsinline></video>
-                <div class="media-placeholder-visual">
-                  <svg width="260" height="125" viewBox="0 0 260 125" fill="none">
-                    <rect x="10" y="10" width="240" height="105" stroke="#38bdf8" stroke-width="2" fill="rgba(11,28,48,0.8)" />
-                    <circle cx="95" cy="52" r="18" fill="rgba(244,185,66,0.25)" stroke="#f4b942" stroke-width="2" />
-                    <path d="M95,70 L95,86" stroke="#f4b942" stroke-width="2" />
-                    <path d="M135,45 Q170,30 205,50" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 3" />
-                    <text x="130" y="104" text-anchor="middle" fill="#e0f2fe" font-family="JetBrains Mono" font-size="9">PASS-AND-PLAY MOBILE GEOGRAPHY STRATEGY</text>
-                  </svg>
-                  <code class="media-path-code">Drop clip at: /public/assets/media/balloon-countries.mp4</code>
+            <div class="spine-gutter" aria-hidden="true"></div>
+
+            <!-- Front cover leaf (closed book → swings open) -->
+            <div class="leaf3d cover-leaf" id="cover-leaf" aria-hidden="true">
+              <div class="leaf-face front cover-front">
+                <div class="cover-title-block">
+                  <p class="cover-author">Ahmed Awedni</p>
+                  <p class="cover-title" data-i18n="book.cover_title">Grimoire des Quêtes</p>
                 </div>
+                <p class="cover-sub" data-i18n="book.cover_sub">Cinq quêtes · Huit artefacts</p>
               </div>
+              <div class="leaf-face back page-face" id="cover-back"></div>
             </div>
+
+            <div class="flip-layer" id="flip-layer" aria-hidden="true"></div>
           </div>
-
-          <!-- BALLOON OF THE COUNTRIES: 2 INTERACTIVE GAME DESIGN ARTIFACTS -->
-          <div class="artifacts-grid">
-            <!-- Artifact A: One-Screen Pass-and-Play UI Wireframe — Before vs. After -->
-            <div class="artifact-panel">
-              <div class="artifact-header">
-                <div>
-                  <span class="artifact-id-tag">ARTIFACT 04-A // MOBILE ERGONOMICS & THUMB-ZONE REDESIGN</span>
-                  <h4 class="artifact-title" data-i18n="p4.artA_title">Wireframe UI Pass-and-Play à Un Écran — Comparateur Avant vs Après</h4>
-                </div>
-              </div>
-
-              <div style="display:flex;gap:0.5rem;">
-                <button type="button" id="bal-wire-before-btn" class="sim-btn">❌ Before (Dual-HUD Clutter)</button>
-                <button type="button" id="bal-wire-after-btn" class="sim-btn active">✅ After (Ergonomic Single-HUD)</button>
-              </div>
-
-              <div id="bal-wireframe-stage"></div>
-            </div>
-
-            <!-- Artifact B: Round Escalation & Score Multiplier Curve -->
-            <div class="artifact-panel">
-              <div class="artifact-header">
-                <div>
-                  <span class="artifact-id-tag">ARTIFACT 04-B // PACING & RISK-REWARD SCORE ESCALATION</span>
-                  <h4 class="artifact-title" data-i18n="p4.artB_title">Courbe d'Escalade des Manches & Multiplicateur de Score Risque/Récompense</h4>
-                </div>
-              </div>
-
-              <div class="sim-control-row" style="flex-direction:column;align-items:stretch;">
-                <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.75rem;">
-                  <span>Simulate Match Progression:</span>
-                  <strong id="bal-round-val" style="color:#38bdf8;">Round 4 / 10</strong>
-                </div>
-                <input type="range" id="bal-round-slider" class="sim-slider" min="1" max="10" value="4" aria-label="Round Escalation Slider" />
-              </div>
-
-              <div class="sim-telemetry-grid">
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">SCORE MULTIPLIER</span>
-                  <span id="bal-mult-val" class="telemetry-val" style="color:#f4b942;">2.05×</span>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">WIND DRIFT HAZARD</span>
-                  <span id="bal-wind-val" class="telemetry-val" style="color:#38bdf8;">28 kt Wind</span>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="telemetry-label">BULLSEYE REWARD</span>
-                  <span id="bal-score-val" class="telemetry-val" style="color:#4ade80;">+513 PTS</span>
-                </div>
-              </div>
-
-              <svg width="100%" height="90" viewBox="0 0 300 90" style="background:rgba(0,0,0,0.45);border:1px solid var(--border-subtle);">
-                <polyline fill="none" stroke="#f4b942" stroke-width="2.5" points="20,76 50,69 80,62 110,54 140,46 170,38 200,30 230,22 260,15 285,9" />
-                <text x="26" y="22" fill="#f4b942" font-family="JetBrains Mono" font-size="9">Risk-Reward Multiplier Escalation (R1 → R10)</text>
-              </svg>
-            </div>
-          </div>
-        </article>
-
-        <!-- ==================================================================
-             PROJECT 5: [LOCKED QUEST SLOT #05 — Incoming Playable 2D Prototype]
-             ================================================================== -->
-        <article id="quest-slot-05-mount" class="quest-card locked-quest-card" data-project-theme="locked-slot" data-categories="world,tech,3cs">
-          <div class="quest-card-header">
-            <div>
-              <span class="quest-number-badge" style="border-color:#10b981;color:#6ee7b7;" data-i18n="p5.badge">
-                QUÊTE #05 // EMPLACEMENT DE QUÊTE VERROUILLÉ — PROTOTYPE JOUABLE EN APPROCHE
-              </span>
-              <h3 class="quest-title" data-i18n="p5.title">[LOCKED QUEST SLOT #05 — Incoming Playable 2D Prototype]</h3>
-            </div>
-            <button type="button" class="sim-btn" data-activate-theme="locked-slot" style="border-color:#10b981;color:#6ee7b7;">
-              🔐 <span data-i18n="quests.activate_theme">Activer l'Atmosphère</span>
-            </button>
-          </div>
-
-          <div class="primary-skills-row">
-            <span class="primary-skills-label" data-i18n="quests.primary_skills">Compétences Clés :</span>
-            <span class="skill-badge" style="border-color:#10b981;">Level Design</span>
-            <span class="skill-badge" style="border-color:#10b981;">AI Behavior</span>
-            <span class="skill-badge" style="border-color:#10b981;">Narrative Design</span>
-            <span class="skill-badge" style="border-color:#10b981;">Rapid Prototyping</span>
-          </div>
-
-          <div class="slot05-inner-grid">
-            <div style="width:72px;height:72px;border:2px solid #10b981;display:grid;place-items:center;background:rgba(16,185,129,0.1);box-shadow:0 0 24px rgba(16,185,129,0.3);">
-              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2">
-                <rect x="4" y="11" width="16" height="10" rx="2" />
-                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-                <circle cx="12" cy="16" r="1.5" fill="#6ee7b7" />
-              </svg>
-            </div>
-
-            <div>
-              <div style="font-family:var(--font-mono);font-size:0.74rem;color:#6ee7b7;margin-bottom:0.3rem;" data-i18n="p5.status">
-                STATUT : HOOK DOM & CANVAS PRÊTS POUR INJECTION LIVE
-              </div>
-              <p style="font-size:0.92rem;color:var(--text-main);" data-i18n="p5.pitch">
-                Emplacement d'extension modulaire pré-câblé pour accueillir le prochain prototype 2D jouable directement dans le navigateur (Level Design, AI Behavior, Narrative Design & Rapid Prototyping).
-              </p>
-              <div id="slot05-telemetry-readout" style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);margin-top:0.4rem;">
-                Mount ID: #playable-prototype-stage // Ready for next step injection.
-              </div>
-            </div>
-
-            <button type="button" id="slot05-scan-btn" class="sim-btn" style="border-color:#10b981;color:#6ee7b7;">
-              📡 <span data-i18n="p5.btn_scan">Scanner la Télémétrie du Blueprint #05</span>
-            </button>
-          </div>
-          <!-- Modular code hook for the playable 2D game in the next step -->
-          <div id="playable-prototype-stage" data-prototype-hook="ready" hidden></div>
-        </article>
-      </div>
-    </section>
-
-    <!-- ======================================================================
-         3. UNLOCKED ACHIEVEMENTS ROW (XBOX / STEAM STYLE)
-         ====================================================================== -->
-    <section id="achievements-section" aria-labelledby="achievements-heading">
-      <div class="section-banner">
-        <div class="section-title-group">
-          <span class="section-eyebrow" data-i18n="ach.eyebrow">// VITRINE DE TROPHÉES — SUCCÈS DÉVERROUILLÉS</span>
-          <h2 id="achievements-heading" class="section-title" data-i18n="ach.title">Jalons de Production & Expérience Expédiée</h2>
         </div>
       </div>
-
-      <div class="achievements-grid">
-        <!-- Achievement 1: Bubble Trouble -->
-        <div class="achievement-card">
-          <div class="achievement-trophy-icon" aria-hidden="true">🫧</div>
-          <div class="achievement-meta">
-            <span class="achievement-unlock-tag" data-i18n="ach.unlocked">SUCCÈS DÉVERROUILLÉ // GOOGLE PLAY</span>
-            <h3 class="achievement-name" data-i18n="ach.a1_title">Bubble Trouble</h3>
-            <p class="achievement-desc" data-i18n="ach.a1_desc">Premier projet et premier jeu mobile expédié sur le Google Play Store.</p>
-          </div>
-        </div>
-
-        <!-- Achievement 2: Global Game Jam 2026 -->
-        <div class="achievement-card">
-          <div class="achievement-trophy-icon" aria-hidden="true">⚡</div>
-          <div class="achievement-meta">
-            <span class="achievement-unlock-tag" data-i18n="ach.unlocked">SUCCÈS DÉVERROUILLÉ // GGJ 2026</span>
-            <h3 class="achievement-name" data-i18n="ach.a2_title">Global Game Jam 2026</h3>
-            <p class="achievement-desc" data-i18n="ach.a2_desc">Vétéran du prototypage rapide en 48 heures chrono en équipe pluridisciplinaire.</p>
-          </div>
-        </div>
-
-        <!-- Achievement 3: Interactive Systems Inspector -->
-        <div class="achievement-card">
-          <div class="achievement-trophy-icon" aria-hidden="true">🏆</div>
-          <div class="achievement-meta">
-            <span id="ach-inspector-status" class="achievement-unlock-tag" style="color:#fbbf24;">QUÊTE INTERACTIVE // +100 XP</span>
-            <h3 class="achievement-name" data-i18n="ach.a3_title">Inspecteur de Systèmes</h3>
-            <p class="achievement-desc" data-i18n="ach.a3_desc">Interagissez avec un simulateur de Game Design ou copiez l'email recruteur (+100 XP).</p>
-          </div>
-        </div>
+      <div class="mobile-nav" id="mobile-nav">
+        <button type="button" class="ink-btn" id="m-prev" data-i18n-aria="nav.prev" aria-label="Page précédente">‹</button>
+        <span id="m-folio">i</span>
+        <button type="button" class="ink-btn" id="m-next" data-i18n-aria="nav.next" aria-label="Page suivante">›</button>
       </div>
     </section>
   </main>
 
-  <!-- Floating XP Toast Container -->
-  <div id="xp-toast-container" class="xp-toast-container" aria-live="polite"></div>
+  <!-- Floating recruiter dock (Act 2 & 3) -->
+  <nav class="dock" id="dock" aria-label="Contact">
+    <a class="dock-btn" href="https://github.com/ahmedAwedni" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+    </a>
+    <a class="dock-btn" href="public/assets/Ahmed_Awedni_CV.pdf" download="Ahmed_Awedni_CV.pdf" aria-label="CV (PDF)"><span aria-hidden="true">📜</span></a>
+    <a class="dock-btn" href="https://www.linkedin.com/in/ahmed-awedni/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11H3v-11Zm7 0h3.8v1.5h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1v5.46h-4v-4.84c0-1.16-.02-2.64-1.61-2.64-1.61 0-1.86 1.26-1.86 2.56v4.92h-4v-11Z"/></svg>
+    </a>
+    <button type="button" class="dock-btn dock-mail" data-copy-email aria-label="Email"><span aria-hidden="true">🕊️</span></button>
+  </nav>
 
-  <!-- ========================================================================
-       4. STICKY RECRUITER FAST-ACTION DOCK
-       ======================================================================== -->
-  <footer id="recruiter-dock" class="recruiter-dock" role="contentinfo">
-    <div class="dock-status-left">
-      <span class="atmosphere-dot"></span>
-      <span data-i18n="dock.status">PRÊT POUR ENTRETIEN // ALTERNANCE & STAGE ALTERNÉ (PARIS / IDF)</span>
-    </div>
+  <div class="warm-wipe" id="warm-wipe" aria-hidden="true"></div>
+  <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
 
-    <div class="dock-actions">
-      <a href="https://github.com/ahmedAwedni" target="_blank" rel="noopener noreferrer" class="dock-action-btn">
-        <span>💻</span> <span>GitHub</span>
-      </a>
-      <a href="public/assets/Ahmed_Awedni_CV.pdf" download="Ahmed_Awedni_Game_Designer_CV.pdf" class="dock-action-btn">
-        <span>📄</span> <span data-i18n="dock.cv">CV (PDF)</span>
-      </a>
-      <a href="https://www.linkedin.com/in/ahmed-awedni/" target="_blank" rel="noopener noreferrer" class="dock-action-btn">
-        <span>🔗</span> <span>LinkedIn</span>
-      </a>
-      <button type="button" id="copy-email-btn" class="dock-action-btn primary-cta">
-        <span>✉️</span> <span data-i18n="dock.copy_email">Email (+100 XP)</span>
-      </button>
-    </div>
-  </footer>
-
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
