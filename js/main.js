@@ -31,7 +31,9 @@ class PortfolioApp {
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     this.atmosphere = new AtmosphereEngine($('#particle-canvas'), $('#fx-canvas'));
-    this.atmosphere.setMode('fireflies');
+    this.atmosphere.setMode('arcana');
+    audioEngine.initAutoplayAndVisibility();
+    audioEngine.setBgmScene('act1');
 
     this.grimoire = new Grimoire({
       atmosphere: this.atmosphere,
@@ -308,13 +310,14 @@ class PortfolioApp {
     $('#skip-intro-btn').addEventListener('click', () => this.skipIntro());
     $('#open-chest-btn').classList.add('glint');
     gsap.set('.chest-rays', { '--rs': 1 });
-    gsap.from('.gacha > *', { autoAlpha: 0, y: 20, duration: 0.8, stagger: 0.1, ease: 'power3.out', delay: 0.2 });
+    gsap.from('.gacha', { autoAlpha: 0, duration: 0.65, ease: 'power2.out', delay: 0.1 });
   }
 
   playGacha() {
     if (this.busy || this.scene !== 'act1') return;
     this.busy = true;
     audioEngine.ensureContext();
+    audioEngine.duckAct1Bgm();
     const gacha = $('.gacha');
     const chest = $('#chest');
     gacha.classList.add('is-opening');
@@ -344,9 +347,8 @@ class PortfolioApp {
           gsap.set(chest, { x: Math.sin(now / 16) * 9 * shake.a, y: Math.cos(now / 21) * 3 * shake.a, rotation: Math.sin(now / 24) * 3.2 * shake.a });
         }
       }, 0.3)
-      .to('.chest-seam', { opacity: 1, scaleY: 3.2, duration: 0.95, ease: 'power2.in' }, 0.3)
       .to('.chest-halo', { opacity: 1, scale: 1.5, duration: 0.95, ease: 'power2.in' }, 0.3)
-      .to('.chest-rays', { opacity: 1, '--rs': 1.7, duration: 0.95, ease: 'power2.in' }, 0.3)
+      .fromTo('.chest-rays', { opacity: 0, '--rs': 0.9 }, { opacity: 0.95, '--rs': 1.7, duration: 0.95, ease: 'power2.in' }, 0.3)
       // 5★ beam
       .call(() => { audioEngine.playStarBurst(); this.atmosphere.burst(cx, cy, { count: 90, speed: 16 }); }, null, 1.24)
       .set('.wish-beam', { opacity: 1, bottom: window.innerHeight - cy }, 1.24)
@@ -358,12 +360,11 @@ class PortfolioApp {
       // Obsidian silhouette with golden aura
       .fromTo('.hero-silhouette', { autoAlpha: 0, scale: 0.9, y: 40 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.36, ease: 'power3.out' }, 1.5)
       .to('.wish-beam', { opacity: 0, duration: 0.45 }, 1.62)
-      // Shockwave → Act 2
+      // Dedicated Legendary 5★ Character Reveal -> Act 2
       .call(() => {
-        this.atmosphere.shockwave(window.innerWidth / 2, window.innerHeight * 0.55, { runes: false });
-        this.spawnRings(window.innerWidth / 2, window.innerHeight * 0.55);
-        audioEngine.playShockwavePulse();
-      }, null, 2.1)
+        this.atmosphere.legendaryReveal(window.innerWidth / 2, window.innerHeight * 0.52, this.isMobile());
+        audioEngine.playLegendaryReveal();
+      }, null, 2.08)
       .to(['.hero-silhouette', '.wish-stars'], { autoAlpha: 0, scale: 1.12, duration: 0.35 }, 2.12)
       .add(this.revealAct2(), 2.12);
   }
@@ -382,6 +383,7 @@ class PortfolioApp {
     const fromClip = this.isMobile() ? 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)' : 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)';
     const toClip = this.isMobile() ? 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)' : 'polygon(0% 0%, 63% 0%, 37% 100%, 0% 100%)';
     tl.call(() => { this.setScene('act2'); this.atmosphere.setMode('meadow'); }, null, 0)
+      .call(() => audioEngine.setBgmScene('act2'), null, 0.3)
       .to('#act1', { autoAlpha: 0, duration: 0.3 }, 0)
       .to('.bg-act1', { autoAlpha: 0, duration: 0.5 }, 0)
       .set('.bg-act2', { autoAlpha: 1 }, 0)
@@ -408,13 +410,14 @@ class PortfolioApp {
       .to(['#act2', '.bg-act2', '#dock'], { autoAlpha: 0, duration: 0.45 }, 0)
       .call(() => {
         this.setScene('act1');
-        this.atmosphere.setMode('fireflies');
+        this.atmosphere.setMode('arcana');
+        audioEngine.setBgmScene('act1');
         $('#key-count').textContent = '1';
         gacha.classList.remove('is-opening');
         gsap.set('#chest', { clearProps: 'transform' });
         $('#chest').style.animation = '';
-        gsap.set(['.chest-seam', '.chest-halo', '.chest-rays'], { clearProps: 'opacity,transform' });
-        gsap.set('.chest-rays', { '--rs': 1 });
+        gsap.set(['.chest-halo', '.chest-rays'], { clearProps: 'opacity,transform' });
+        gsap.set('.chest-rays', { opacity: 0, '--rs': 1 });
         gsap.set(['.hero-silhouette', '.wish-stars'], { autoAlpha: 0, scale: 1 });
         gsap.set('.wish-stars svg', { opacity: 0 });
         gsap.set('.wish-beam', { opacity: 0, scaleY: 0 });

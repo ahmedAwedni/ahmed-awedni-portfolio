@@ -6,13 +6,12 @@
   <title>Ahmed Awedni — Game Designer & Technical Designer</title>
   <meta name="description" content="Portfolio interactif d'Ahmed Awedni, Game Designer & Technical Designer (Master Game Design, IIM Paris). Recherche d'alternance à Paris / Île-de-France." />
   <meta name="robots" content="noindex, nofollow" />
-  <meta name="theme-color" content="#1E1B3A" />
+  <meta name="theme-color" content="#080C16" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet" />
 
-  <link rel="preload" as="image" href="public/assets/ui/act1-twilight-clearing.webp" />
   <link rel="preload" as="image" href="public/assets/ui/treasure-chest.webp" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -104,8 +103,44 @@
        ====================================================================== -->
   <div id="scene-bgs" class="scene-bgs" aria-hidden="true">
     <div class="bg bg-act1">
-      <div class="bg-act1-img"></div>
-      <div class="bg-act1-glow"></div>
+      <div class="bg-act1-void"></div>
+      <div class="bg-act1-astrolabe">
+        <svg class="astro-svg astro-outer" viewBox="0 0 1000 1000" aria-hidden="true">
+          <g fill="none" stroke="currentColor">
+            <circle cx="500" cy="500" r="460" stroke-width="1.1" />
+            <circle cx="500" cy="500" r="444" stroke-width="0.6" stroke-dasharray="2 8" />
+            <circle cx="500" cy="500" r="368" stroke-width="0.9" />
+            <circle cx="236" cy="296" r="92" stroke-width="0.85" />
+            <circle cx="774" cy="312" r="76" stroke-width="0.85" />
+            <circle cx="302" cy="748" r="64" stroke-width="0.75" />
+            <line x1="40" y1="500" x2="960" y2="500" stroke-width="0.55" stroke-dasharray="4 10" />
+            <line x1="500" y1="40" x2="500" y2="960" stroke-width="0.55" stroke-dasharray="4 10" />
+          </g>
+        </svg>
+        <svg class="astro-svg astro-inner" viewBox="0 0 1000 1000" aria-hidden="true">
+          <g fill="none" stroke="currentColor">
+            <circle cx="500" cy="500" r="292" stroke-width="1" />
+            <circle cx="500" cy="500" r="224" stroke-width="0.75" stroke-dasharray="6 6" />
+            <polygon points="500,208 753,646 247,646" stroke-width="0.8" />
+            <polygon points="500,792 753,354 247,354" stroke-width="0.8" />
+            <rect x="294" y="294" width="412" height="412" stroke-width="0.65" transform="rotate(45 500 500)" />
+            <g stroke-width="0.7" opacity="0.75">
+              <line x1="500" y1="180" x2="500" y2="276" /><line x1="500" y1="724" x2="500" y2="820" />
+              <line x1="180" y1="500" x2="276" y2="500" /><line x1="724" y1="500" x2="820" y2="500" />
+              <line x1="274" y1="274" x2="342" y2="342" /><line x1="658" y1="658" x2="726" y2="726" />
+              <line x1="726" y1="274" x2="658" y2="342" /><line x1="342" y1="658" x2="274" y2="726" />
+              <line x1="378" y1="204" x2="414" y2="290" /><line x1="622" y1="204" x2="586" y2="290" />
+              <line x1="378" y1="796" x2="414" y2="710" /><line x1="622" y1="796" x2="586" y2="710" />
+              <line x1="204" y1="378" x2="290" y2="414" /><line x1="796" y1="378" x2="710" y2="414" />
+              <line x1="204" y1="622" x2="290" y2="586" /><line x1="796" y1="622" x2="710" y2="586" />
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="bg-act1-mist">
+        <div class="mist-layer m1"></div>
+        <div class="mist-layer m2"></div>
+      </div>
     </div>
     <div class="bg bg-act2">
       <div class="bg-act2-right">
@@ -152,8 +187,8 @@
       <button type="button" class="hud-pill" id="sfx-btn" aria-pressed="true">
         <span data-i18n="hud.sfx">SFX</span> <b class="hud-state">ON</b>
       </button>
-      <button type="button" class="hud-pill" id="music-btn" aria-pressed="false">
-        <span data-i18n="hud.music">Musique</span> <b class="hud-state">OFF</b>
+      <button type="button" class="hud-pill" id="music-btn" aria-pressed="true">
+        <span data-i18n="hud.music">Musique</span> <b class="hud-state">ON</b>
       </button>
       <button type="button" class="hud-pill hud-lang" id="lang-btn" data-i18n-aria="hud.lang_aria" aria-label="Changer de langue : français / anglais">
         <span class="lang-opt" data-lang="fr">FR</span><span class="lang-sep">✦</span><span class="lang-opt" data-lang="en">EN</span>
@@ -172,10 +207,17 @@
           <span class="chest-rays" aria-hidden="true"></span>
           <span class="chest-halo" aria-hidden="true"></span>
           <img class="chest-img" src="public/assets/ui/treasure-chest.webp" alt="" width="771" height="642" />
-          <span class="chest-seam" aria-hidden="true"></span>
           <span class="chest-ground" aria-hidden="true"></span>
         </button>
-        <button type="button" class="gilded-btn" id="open-chest-btn"><span data-i18n="a1.open">Ouvrir le Coffre — Requiert 1 🔑</span></button>
+        <button type="button" class="gilded-btn" id="open-chest-btn">
+          <span data-i18n="a1.open">Ouvrir le Coffre — Requiert 1</span>
+          <span class="btn-key-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7.5" cy="15.5" r="4.2" fill="rgba(42,26,12,0.16)" />
+              <path d="M10.6 12.4 L20 3 M16 7 l2.6 2.6 M18.7 4.3 l2.5 2.5" />
+            </svg>
+          </span>
+        </button>
         <p class="gacha-rate" data-i18n="a1.rate">Taux d’obtention 5★ : 100 %</p>
       </div>
 

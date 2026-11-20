@@ -126,7 +126,7 @@ export const TRANSLATIONS = {
     'hud.lang_aria': 'Changer de langue : français / anglais',
 
     'a1.keys': 'Clés restantes :',
-    'a1.open': 'Ouvrir le Coffre — Requiert 1\u00A0🔑',
+    'a1.open': 'Ouvrir le Coffre — Requiert 1',
     'a1.rate': 'Taux d’obtention 5★ : 100 %',
     'a1.skip': 'Passer l’intro\u00A0→',
     'a1.chest_aria': 'Ouvrir le coffre runique',
@@ -311,7 +311,7 @@ export const TRANSLATIONS = {
     'hud.lang_aria': 'Switch language: French / English',
 
     'a1.keys': 'Keys left:',
-    'a1.open': 'Open the Chest — Requires 1\u00A0🔑',
+    'a1.open': 'Open the Chest — Requires 1',
     'a1.rate': '5★ drop rate: 100%',
     'a1.skip': 'Skip intro\u00A0→',
     'a1.chest_aria': 'Open the runic chest',

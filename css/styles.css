@@ -38,7 +38,7 @@
 html, body { height: 100%; }
 
 body {
-  background: var(--indigo);
+  background: #080c16;
   color: var(--ink);
   font-family: var(--f-body);
   font-size: 17px;
@@ -64,18 +64,61 @@ img { display: block; max-width: 100%; }
 .bg { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
 .bg-act1 { opacity: 1; visibility: visible; }
 
-.bg-act1-img {
-  position: absolute; inset: -3%;
-  background: url('../public/assets/ui/act1-twilight-clearing.webp') center 58% / cover no-repeat;
-  animation: slowBreath 18s ease-in-out infinite alternate;
-}
-.bg-act1-glow {
+.bg-act1-void {
   position: absolute; inset: 0;
   background:
-    radial-gradient(ellipse 34% 30% at 50% 64%, rgba(255, 214, 120, 0.28), transparent 70%),
-    radial-gradient(ellipse 120% 90% at 50% 55%, transparent 55%, rgba(18, 16, 38, 0.72) 100%);
+    radial-gradient(circle 34vmax at 50% 47%, rgba(212, 175, 55, 0.10) 0%, rgba(56, 86, 148, 0.18) 38%, transparent 72%),
+    radial-gradient(ellipse 78% 68% at 50% 48%, #121b2e 0%, #0b1120 56%, #080c16 100%);
 }
-@keyframes slowBreath { from { transform: scale(1); } to { transform: scale(1.04); } }
+.bg-act1-astrolabe {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  pointer-events: none;
+}
+.astro-svg {
+  grid-area: 1 / 1;
+  width: min(112vmax, 1180px);
+  height: min(112vmax, 1180px);
+  transform: translateY(-2%);
+}
+.astro-outer {
+  color: rgba(150, 176, 228, 0.16);
+  animation: astroSpinCw 110s linear infinite;
+}
+.astro-inner {
+  color: rgba(226, 194, 120, 0.14);
+  animation: astroSpinCcw 82s linear infinite;
+}
+@keyframes astroSpinCw { from { transform: translateY(-2%) rotate(0deg); } to { transform: translateY(-2%) rotate(360deg); } }
+@keyframes astroSpinCcw { from { transform: translateY(-2%) rotate(360deg); } to { transform: translateY(-2%) rotate(0deg); } }
+
+.bg-act1-mist {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 52%;
+  overflow: hidden; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to top, #000 35%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 35%, transparent 100%);
+}
+.mist-layer {
+  position: absolute; top: 0; bottom: -10%; left: -35%; width: 170%;
+  filter: blur(28px);
+  opacity: 0.72;
+}
+.mist-layer.m1 {
+  background:
+    radial-gradient(ellipse 32% 48% at 22% 78%, rgba(96, 118, 168, 0.36), transparent 72%),
+    radial-gradient(ellipse 38% 54% at 54% 84%, rgba(74, 96, 146, 0.32), transparent 74%),
+    radial-gradient(ellipse 34% 46% at 82% 76%, rgba(104, 126, 178, 0.34), transparent 72%);
+  animation: mistDriftA 32s ease-in-out infinite alternate;
+}
+.mist-layer.m2 {
+  background:
+    radial-gradient(ellipse 36% 52% at 34% 86%, rgba(58, 78, 126, 0.38), transparent 74%),
+    radial-gradient(ellipse 40% 50% at 68% 80%, rgba(112, 134, 184, 0.28), transparent 72%),
+    linear-gradient(to top, rgba(8, 12, 22, 0.85) 0%, rgba(14, 22, 40, 0.32) 48%, transparent 100%);
+  animation: mistDriftB 44s ease-in-out infinite alternate;
+}
+@keyframes mistDriftA { from { transform: translate3d(-4%, 0, 0) scaleX(1.02); } to { transform: translate3d(5%, -2%, 0) scaleX(1.08); } }
+@keyframes mistDriftB { from { transform: translate3d(5%, -1%, 0) scaleX(1.05); } to { transform: translate3d(-5%, 2%, 0) scaleX(1); } }
 
 /* Act 2 — diagonal split */
 .bg-act2-right {
@@ -224,14 +267,15 @@ img { display: block; max-width: 100%; }
    ============================================================================ */
 .gacha {
   position: absolute; inset: 0;
-  padding-top: 12vh;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  padding-top: 8vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
 }
 .gacha-keys {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 6px 18px; border-radius: 999px;
+  margin-bottom: 10px;
   font-family: var(--f-display); font-size: 0.95rem; color: var(--cream);
-  background: var(--indigo-glass);
+  background: rgba(12, 18, 34, 0.72);
   border: 1px solid rgba(212, 175, 55, 0.6);
   backdrop-filter: blur(6px);
 }
@@ -242,48 +286,58 @@ img { display: block; max-width: 100%; }
   position: relative;
   width: clamp(230px, 25vw, 380px);
   aspect-ratio: 771 / 642;
-  margin: 18px 0 6px;
-  animation: chestFloat 4.2s ease-in-out infinite;
+  margin: 14px 0 22px;
+  animation: chestFloat 4.6s ease-in-out infinite;
 }
 .chest-img {
   position: relative; z-index: 2; width: 100%; height: 100%;
-  filter: drop-shadow(0 0 18px rgba(255, 205, 100, 0.55)) drop-shadow(0 18px 18px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 0 22px rgba(255, 206, 108, 0.36)) drop-shadow(0 24px 28px rgba(0, 0, 0, 0.68));
   transition: filter 0.3s;
 }
-.chest:hover .chest-img { filter: drop-shadow(0 0 30px rgba(255, 215, 120, 0.85)) drop-shadow(0 18px 18px rgba(0, 0, 0, 0.45)); }
+.chest:hover .chest-img { filter: drop-shadow(0 0 34px rgba(255, 216, 128, 0.68)) drop-shadow(0 24px 28px rgba(0, 0, 0, 0.68)); }
 .chest-rays {
   position: absolute; z-index: 0; left: 50%; top: 46%;
   width: 260%; aspect-ratio: 1; transform: translate(-50%, -50%) scale(var(--rs, 1));
-  background: repeating-conic-gradient(from 0deg, rgba(255, 226, 150, 0.32) 0deg 5deg, transparent 5deg 18deg);
+  background: repeating-conic-gradient(from 0deg, rgba(255, 226, 150, 0.34) 0deg 5deg, transparent 5deg 18deg);
   -webkit-mask: radial-gradient(circle, #000 0%, transparent 62%);
   mask: radial-gradient(circle, #000 0%, transparent 62%);
-  opacity: 0.45;
+  opacity: 0;
   animation: spin 40s linear infinite;
 }
 .chest-halo {
-  position: absolute; z-index: 1; inset: -18%;
-  background: radial-gradient(ellipse at 50% 48%, rgba(255, 216, 128, 0.5), transparent 60%);
-  animation: halo 2.6s ease-in-out infinite alternate;
-}
-.chest-seam {
-  position: absolute; z-index: 3; left: 4%; right: 5%; top: 45%; height: 5px;
-  border-radius: 6px;
-  background: linear-gradient(90deg, transparent, #fff6cf 15%, #ffd56b 50%, #fff6cf 85%, transparent);
-  box-shadow: 0 0 14px 4px rgba(255, 210, 110, 0.75);
-  opacity: 0.55;
-  transform: rotate(-2deg);
-  animation: halo 1.8s ease-in-out infinite alternate;
+  position: absolute; z-index: 1; inset: -24%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 214, 122, 0.30) 0%, rgba(116, 152, 232, 0.12) 45%, transparent 70%);
+  animation: halo 2.8s ease-in-out infinite alternate;
 }
 .chest-ground {
-  position: absolute; z-index: 0; left: 8%; right: 8%; bottom: -6%; height: 16%;
-  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.5), transparent 70%);
+  position: absolute; z-index: 0; left: 14%; right: 14%; bottom: -11%; height: 14%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.62), transparent 72%);
+  filter: blur(4px);
 }
-@keyframes chestFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes chestFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 @keyframes spin { from { transform: translate(-50%, -50%) scale(var(--rs, 1)) rotate(0deg); } to { transform: translate(-50%, -50%) scale(var(--rs, 1)) rotate(360deg); } }
-.gacha.is-opening .chest-halo, .gacha.is-opening .chest-seam { animation: none; }
-@keyframes halo { from { opacity: 0.45; } to { opacity: 0.9; } }
+.gacha.is-opening .chest-halo { animation: none; }
+@keyframes halo { from { opacity: 0.45; } to { opacity: 0.88; } }
 
-.gacha-rate { font-style: italic; font-size: 0.95rem; color: rgba(246, 236, 217, 0.78); }
+.btn-key-icon {
+  position: relative; z-index: 1;
+  display: inline-grid; place-items: center;
+  width: 24px; height: 24px; border-radius: 999px;
+  color: #231407;
+  background: rgba(38, 22, 6, 0.14);
+  border: 1px solid rgba(38, 22, 6, 0.34);
+  box-shadow: inset 0 1px 0 rgba(255, 250, 220, 0.55);
+  flex-shrink: 0;
+}
+
+.gacha-rate {
+  margin-top: 20px;
+  font-style: italic;
+  font-size: 0.96rem;
+  letter-spacing: 0.02em;
+  color: rgba(232, 226, 214, 0.82);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+}
 
 .wish-beam {
   position: absolute; left: 0; right: 0; margin: 0 auto; bottom: 40%;
