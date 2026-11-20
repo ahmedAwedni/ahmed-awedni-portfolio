@@ -13,6 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet" />
 
   <link rel="preload" as="image" href="public/assets/ui/treasure-chest.webp" />
+  <link rel="preload" as="image" href="public/assets/avatar-cutout.webp" />
+  <link rel="preload" as="image" href="public/assets/ui/act2-emerald-forest-castle.webp" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="is-act1">
@@ -206,7 +208,7 @@
         <button type="button" class="chest" id="chest" data-i18n-aria="a1.chest_aria" aria-label="Ouvrir le coffre runique">
           <span class="chest-rays" aria-hidden="true"></span>
           <span class="chest-halo" aria-hidden="true"></span>
-          <img class="chest-img" src="public/assets/ui/treasure-chest.webp" alt="" width="771" height="642" />
+          <img class="chest-img" src="public/assets/ui/treasure-chest.webp" alt="" width="771" height="642" decoding="async" />
           <span class="chest-ground" aria-hidden="true"></span>
         </button>
         <button type="button" class="gilded-btn" id="open-chest-btn">
@@ -226,7 +228,7 @@
         <svg><use href="#star4" /></svg><svg><use href="#star4" /></svg><svg><use href="#star4" /></svg><svg><use href="#star4" /></svg><svg><use href="#star4" /></svg>
       </div>
       <div class="hero-silhouette" aria-hidden="true">
-        <img src="public/assets/avatar-cutout.webp" alt="" />
+        <span class="hero-silhouette-shape"></span>
       </div>
       <div class="wish-flash" aria-hidden="true"></div>
 
@@ -238,7 +240,7 @@
          ================================================================== -->
     <section id="act2" class="act act2" aria-labelledby="hero-name">
       <div class="a2-portrait" id="a2-portrait">
-        <img src="public/assets/avatar-cutout.webp" alt="Ahmed Awedni" width="680" height="758" />
+        <img src="public/assets/avatar-cutout.webp" alt="Ahmed Awedni" width="680" height="758" decoding="async" />
       </div>
 
       <div class="a2-left" id="a2-left">
@@ -815,6 +817,24 @@ public class TimeSpellSkillSO : BaseSkillSO {
   </nav>
 
   <div class="warm-wipe" id="warm-wipe" aria-hidden="true"></div>
+  <div class="reveal-vfx" id="reveal-vfx" aria-hidden="true">
+    <div class="reveal-flash" id="reveal-flash"></div>
+    <div class="reveal-slash" id="reveal-slash"></div>
+    <div class="reveal-diamond" id="reveal-diamond"></div>
+    <svg class="reveal-star" id="reveal-star" viewBox="0 0 240 240" focusable="false">
+      <defs>
+        <radialGradient id="rv-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fffdf4" stop-opacity="0.95" />
+          <stop offset="34%" stop-color="#f7d469" stop-opacity="0.55" />
+          <stop offset="68%" stop-color="#6ee7a8" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="#f7d469" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="120" cy="120" r="112" fill="url(#rv-glow)" />
+      <polygon points="120,26 130,110 214,120 130,130 120,214 110,130 26,120 110,110" fill="#ffe799" opacity="0.88" transform="rotate(45 120 120)" />
+      <polygon points="120,4 129,109 236,120 129,131 120,236 111,131 4,120 111,109" fill="#fffdf5" />
+    </svg>
+  </div>
   <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
   <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
 

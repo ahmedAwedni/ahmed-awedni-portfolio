@@ -37,6 +37,9 @@ class PortfolioApp {
     audioEngine.initAutoplayAndVisibility();
     audioEngine.setBgmScene('act1');
 
+    this.bakeGrainTexture();
+    this.prewarmAssets();
+
     this.grimoire = new Grimoire({
       atmosphere: this.atmosphere,
       getLang: () => this.lang,
@@ -60,6 +63,37 @@ class PortfolioApp {
 
   t(key) { return (TRANSLATIONS[this.lang] || TRANSLATIONS.fr)[key] ?? key; }
   isMobile() { return window.innerWidth <= 760; }
+
+  bakeGrainTexture() {
+    const cv = document.createElement('canvas');
+    cv.width = 128;
+    cv.height = 128;
+    const g = cv.getContext('2d');
+    const img = g.createImageData(128, 128);
+    const data = img.data;
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = 88;
+      data[i + 1] = 60;
+      data[i + 2] = 30;
+      data[i + 3] = Math.floor(Math.random() * 44);
+    }
+    g.putImageData(img, 0, 0);
+    document.documentElement.style.setProperty('--grain', `url("${cv.toDataURL('image/png')}")`);
+  }
+
+  prewarmAssets() {
+    const run = () => {
+      ['public/assets/avatar-cutout.webp', 'public/assets/ui/act2-emerald-forest-castle.webp', 'public/assets/ui/table-oak-topdown.webp']
+        .forEach((src) => {
+          const im = new Image();
+          im.src = src;
+          im.decode?.().catch(() => {});
+        });
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 600 });
+    else setTimeout(run, 120);
+  }
+
   setScene(name) {
     this.scene = name;
     document.body.classList.remove('is-act1', 'is-act2', 'is-act3');
@@ -238,7 +272,7 @@ class PortfolioApp {
         <span class="stat-code">${s.code}</span>
         <span class="stat-label">${c.label}</span>
         <span class="stat-score">${s.score}</span>
-        <span class="stat-bar"><i style="width:${keepWidths || this.statsRevealed ? s.score : 0}%"></i></span>`;
+        <span class="stat-bar"><i style="width:${s.score}%;transform:scaleX(${keepWidths || this.statsRevealed ? 1 : 0})"></i></span>`;
       const pick = () => this.selectStat(i);
       li.addEventListener('mouseenter', pick);
       li.addEventListener('focus', pick);
@@ -268,7 +302,7 @@ class PortfolioApp {
   revealStats() {
     this.statsRevealed = true;
     $$('#stat-list .stat-bar i').forEach((bar, i) => {
-      gsap.fromTo(bar, { width: '0%' }, { width: `${RPG_STATS[i].score}%`, duration: 1.1, delay: 0.25 + i * 0.07, ease: 'power3.out' });
+      gsap.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: 0.95, delay: 0.15 + i * 0.06, ease: 'power3.out' });
     });
   }
 
@@ -322,6 +356,34 @@ class PortfolioApp {
     gsap.from('.gacha', { autoAlpha: 0, duration: 0.65, ease: 'power2.out', delay: 0.1 });
   }
 
+  triggerRevealVfx() {
+    const root = $('#reveal-vfx');
+    if (!root) return;
+    const deg = this.isMobile() ? 28 : (Math.atan2(0.26 * window.innerWidth, window.innerHeight) * 180) / Math.PI;
+    this._revealTl?.kill();
+    gsap.set(root, { visibility: 'visible', opacity: 1 });
+    const tl = gsap.timeline({
+      onComplete: () => gsap.set(root, { visibility: 'hidden' })
+    });
+    this._revealTl = tl;
+    tl.fromTo('#reveal-flash', { opacity: 0 }, { opacity: 0.94, duration: 0.09, ease: 'power2.out' }, 0)
+      .to('#reveal-flash', { opacity: 0, duration: 0.42, ease: 'power2.out' }, 0.11)
+      .fromTo('#reveal-slash',
+        { xPercent: -50, yPercent: -50, rotation: deg, scaleX: 0.14, scaleY: 0.25, opacity: 0.96 },
+        { xPercent: -50, yPercent: -50, rotation: deg, scaleX: 1.5, scaleY: 1.12, opacity: 1, duration: 0.11, ease: 'expo.out' },
+        0)
+      .to('#reveal-slash', { scaleX: 0.18, opacity: 0, duration: 0.34, ease: 'power2.in' }, 0.12)
+      .fromTo('#reveal-diamond',
+        { xPercent: -50, yPercent: -50, rotation: 45, scale: 0.18, opacity: 0.95 },
+        { xPercent: -50, yPercent: -50, rotation: 45, scale: 2.35, opacity: 0, duration: 0.56, ease: 'power2.out' },
+        0.02)
+      .fromTo('#reveal-star',
+        { xPercent: -50, yPercent: -50, rotation: 0, scale: 0.24, opacity: 1 },
+        { xPercent: -50, yPercent: -50, rotation: 24, scale: 2.35, opacity: 1, duration: 0.16, ease: 'power3.out' },
+        0)
+      .to('#reveal-star', { rotation: 54, scale: 3.1, opacity: 0, duration: 0.42, ease: 'power2.out' }, 0.17);
+  }
+
   playGacha() {
     if (this.busy || this.scene !== 'act1') return;
     this.busy = true;
@@ -337,17 +399,28 @@ class PortfolioApp {
     const cx = cr.left + cr.width / 2;
     const cy = cr.top + cr.height * 0.48;
 
-    // Key flies into the keyhole
+    // Key flies into the keyhole (pure transform)
     const ki = $('#key-icon').getBoundingClientRect();
     const flyer = document.createElement('div');
     flyer.textContent = '🔑';
-    Object.assign(flyer.style, { position: 'fixed', left: `${ki.left}px`, top: `${ki.top}px`, zIndex: 58, fontSize: '1.3rem', pointerEvents: 'none' });
+    Object.assign(flyer.style, {
+      position: 'fixed', left: `${ki.left}px`, top: `${ki.top}px`,
+      zIndex: 58, fontSize: '1.3rem', pointerEvents: 'none', willChange: 'transform'
+    });
     document.body.appendChild(flyer);
 
     const shake = { a: 0 };
     const tl = gsap.timeline({ onComplete: () => { this.busy = false; } });
-    tl.to(flyer, { left: cr.left + cr.width * 0.69 - 10, top: cr.top + cr.height * 0.54 - 12, rotation: 200, scale: 0.7, duration: 0.32, ease: 'power2.in', onComplete: () => flyer.remove() }, 0)
+    tl.to(flyer, {
+      x: cr.left + cr.width * 0.69 - 10 - ki.left,
+      y: cr.top + cr.height * 0.54 - 12 - ki.top,
+      rotation: 200, scale: 0.7, duration: 0.32, ease: 'power2.in', onComplete: () => flyer.remove()
+    }, 0)
       .to('#open-chest-btn, .gacha-rate, .gacha-keys', { autoAlpha: 0, y: 8, duration: 0.25 }, 0.05)
+      .call(() => {
+        gsap.set(['.bg-act2', '#act2'], { visibility: 'visible', opacity: 0.002, pointerEvents: 'none' });
+        gsap.set('#reveal-vfx', { visibility: 'visible', opacity: 0.002 });
+      }, null, 0.06)
       .call(() => audioEngine.playChestCrescendo(), null, 0.3)
       .to(shake, {
         a: 1, duration: 0.95, ease: 'power2.in',
@@ -359,23 +432,25 @@ class PortfolioApp {
       .to('.chest-halo', { opacity: 1, scale: 1.5, duration: 0.95, ease: 'power2.in' }, 0.3)
       .fromTo('.chest-rays', { opacity: 0 }, { opacity: 0.9, duration: 0.95, ease: 'power2.in' }, 0.3)
       // 5★ beam
-      .call(() => { audioEngine.playStarBurst(); this.atmosphere.burst(cx, cy, { count: 38, speed: 15 }); }, null, 1.24)
+      .call(() => { audioEngine.playStarBurst(); this.atmosphere.burst(cx, cy, { count: 22, speed: 14 }); }, null, 1.24)
       .set('.wish-beam', { opacity: 1, bottom: window.innerHeight - cy }, 1.24)
       .fromTo('.wish-beam', { scaleY: 0 }, { scaleY: 1, duration: 0.42, ease: 'expo.out' }, 1.24)
-      .fromTo('.wish-flash', { opacity: 0 }, { opacity: 0.92, duration: 0.1, ease: 'none' }, 1.24)
+      .fromTo('.wish-flash', { opacity: 0 }, { opacity: 0.88, duration: 0.1, ease: 'none' }, 1.24)
       .to('.wish-flash', { opacity: 0, duration: 0.55, ease: 'power2.out' }, 1.36)
       .to(gacha, { autoAlpha: 0, scale: 0.94, duration: 0.25 }, 1.28)
       .fromTo('.wish-stars svg', { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.26, stagger: 0.07, ease: 'back.out(3)' }, 1.36)
       // Obsidian silhouette with golden aura
       .fromTo('.hero-silhouette', { autoAlpha: 0, scale: 0.9, y: 40 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.36, ease: 'power3.out' }, 1.5)
       .to('.wish-beam', { opacity: 0, duration: 0.45 }, 1.62)
-      // Dedicated Legendary 5★ Character Reveal -> Act 2
+      // Dedicated GPU-Composited Legendary 5★ Character Reveal -> Act 2
       .call(() => {
+        this.atmosphere.pauseAmbient(500);
+        this.triggerRevealVfx();
         this.atmosphere.legendaryReveal(window.innerWidth / 2, window.innerHeight * 0.52, this.isMobile());
         audioEngine.playLegendaryReveal();
-      }, null, 2.08)
-      .to(['.hero-silhouette', '.wish-stars'], { autoAlpha: 0, scale: 1.12, duration: 0.35 }, 2.12)
-      .add(this.revealAct2(), 2.12);
+      }, null, 2.06)
+      .to(['.hero-silhouette', '.wish-stars'], { autoAlpha: 0, scale: 1.08, duration: 0.16, ease: 'power2.in' }, 2.06)
+      .add(this.revealAct2(true), 2.15);
   }
 
   skipIntro() {
@@ -384,25 +459,27 @@ class PortfolioApp {
     audioEngine.playClick();
     gsap.timeline({ onComplete: () => { this.busy = false; } })
       .to('#act1', { autoAlpha: 0, duration: 0.35 }, 0)
-      .add(this.revealAct2(), 0.1);
+      .add(this.revealAct2(false), 0.1);
   }
 
-  revealAct2() {
+  revealAct2(fromReveal = false) {
     const tl = gsap.timeline();
-    tl.call(() => { this.setScene('act2'); this.atmosphere.setMode('meadow'); }, null, 0)
-      .call(() => audioEngine.setBgmScene('act2'), null, 0.3)
-      .to('#act1', { autoAlpha: 0, duration: 0.3 }, 0)
-      .to('.bg-act1', { autoAlpha: 0, duration: 0.5 }, 0)
-      .set('.bg-act2', { autoAlpha: 1 }, 0)
-      .fromTo('.bg-act2-right', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, 0)
-      .fromTo('.bg-act2-left', { autoAlpha: 0, xPercent: -14 }, { autoAlpha: 1, xPercent: 0, duration: 0.72, ease: 'power3.out', clearProps: 'transform' }, 0.04)
-      .fromTo('.bg-act2-seam', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 }, 0.55)
-      .set('#act2', { autoAlpha: 1 }, 0.05)
-      .fromTo('#a2-portrait', { autoAlpha: 0, y: 70 }, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 0.15)
-      .fromTo('#a2-left > *', { autoAlpha: 0, x: -50 }, { autoAlpha: 1, x: 0, duration: 0.7, stagger: 0.07, ease: 'power3.out' }, 0.3)
-      .fromTo('#a2-right > *', { autoAlpha: 0, x: 50 }, { autoAlpha: 1, x: 0, duration: 0.7, stagger: 0.05, ease: 'power3.out' }, 0.35)
-      .call(() => this.revealStats(), null, 0.4)
-      .fromTo('#dock', { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.5 }, 0.8);
+    tl.call(() => { this.setScene('act2'); this.atmosphere.setMode('meadow'); }, null, 0);
+    if (fromReveal) {
+      tl.set(['#act1', '.bg-act1', '.hero-silhouette', '.wish-stars', '.wish-beam', '.wish-flash'], { autoAlpha: 0 }, 0);
+    } else {
+      tl.to(['#act1', '.bg-act1'], { autoAlpha: 0, duration: 0.35 }, 0);
+    }
+    tl.set(['.bg-act2', '.bg-act2-right'], { autoAlpha: 1 }, 0)
+      .fromTo('.bg-act2-left', { autoAlpha: 1, xPercent: -9 }, { xPercent: 0, duration: 0.62, ease: 'power3.out', clearProps: 'transform' }, 0)
+      .fromTo('.bg-act2-seam', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35 }, 0.36)
+      .set('#act2', { autoAlpha: 1, pointerEvents: 'auto' }, 0)
+      .fromTo('#a2-portrait', { autoAlpha: 0, y: 44 }, { autoAlpha: 1, y: 0, duration: 0.72, ease: 'power3.out' }, 0.04)
+      .fromTo('#a2-left > *', { autoAlpha: 0, x: -34 }, { autoAlpha: 1, x: 0, duration: 0.58, stagger: 0.055, ease: 'power3.out' }, 0.18)
+      .fromTo('#a2-right > *', { autoAlpha: 0, x: 34 }, { autoAlpha: 1, x: 0, duration: 0.58, stagger: 0.045, ease: 'power3.out' }, 0.22)
+      .call(() => audioEngine.setBgmScene('act2'), null, 0.25)
+      .call(() => this.revealStats(), null, 0.32)
+      .fromTo('#dock', { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.45 }, 0.68);
     return tl;
   }
 
@@ -428,6 +505,11 @@ class PortfolioApp {
         gsap.set(['.hero-silhouette', '.wish-stars'], { autoAlpha: 0, scale: 1 });
         gsap.set('.wish-stars svg', { opacity: 0 });
         gsap.set('.wish-beam', { opacity: 0, scaleY: 0 });
+        this._revealTl?.kill();
+        gsap.set('#reveal-vfx', { visibility: 'hidden', opacity: 1 });
+        gsap.set(['#reveal-flash', '#reveal-slash', '#reveal-diamond', '#reveal-star'], { opacity: 0 });
+        this.statsRevealed = false;
+        gsap.set('#stat-list .stat-bar i', { scaleX: 0 });
         gsap.set(gacha, { autoAlpha: 1, scale: 1 });
         gsap.set('#open-chest-btn, .gacha-rate, .gacha-keys', { autoAlpha: 1, y: 0 });
       }, null, 0.45)

@@ -69,13 +69,14 @@ export class AtmosphereEngine {
     this.sparks = [];
     this.waves = [];
     this.dust = [];
-    this.flares = [];
-    this.slashes = [];
     this.shards = [];
     this.revealPetals = [];
     this.orbSprites = new Map();
     this.shardSprites = new Map();
+    this.petalSprites = new Map();
+    this.fDpr = 1;
     this._fxDirty = false;
+    this._ambientPausedUntil = 0;
     this.t = 0;
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -88,47 +89,33 @@ export class AtmosphereEngine {
   }
 
   buildSprites() {
-    // Warm up orb & shard caches
+    // Warm up orb, shard & petal caches
     [...EMBER_COLORS, ...PALETTES.fireflies, ...PALETTES.meadow, '#fff8e7', '#f7c948', '#7fd99a'].forEach((c) => this.getOrbSprite(c));
     SHARD_COLORS.forEach((c) => this.getShardSprite(c));
+    REVEAL_PETAL_COLORS.forEach((c) => this.getPetalSprite(c));
+  }
 
-    // Pre-bake 256x256 8-spike golden-emerald starburst flare
-    const fs = document.createElement('canvas');
-    fs.width = 256;
-    fs.height = 256;
-    const fc = fs.getContext('2d');
-    const cx = 128; const cy = 128;
-
-    const glow = fc.createRadialGradient(cx, cy, 0, cx, cy, 120);
-    glow.addColorStop(0, 'rgba(255, 252, 236, 0.94)');
-    glow.addColorStop(0.24, 'rgba(247, 210, 100, 0.56)');
-    glow.addColorStop(0.58, 'rgba(110, 231, 168, 0.18)');
-    glow.addColorStop(1, 'rgba(247, 210, 100, 0)');
-    fc.fillStyle = glow;
-    fc.beginPath();
-    fc.arc(cx, cy, 120, 0, Math.PI * 2);
-    fc.fill();
-
-    for (let s = 0; s < 8; s++) {
-      const ang = (Math.PI * s) / 4;
-      const len = s % 2 === 0 ? 124 : 78;
-      const thick = s % 2 === 0 ? 11 : 6;
-      fc.save();
-      fc.translate(cx, cy);
-      fc.rotate(ang);
-      const sg = fc.createLinearGradient(-len, 0, len, 0);
-      sg.addColorStop(0, 'rgba(255, 245, 200, 0)');
-      sg.addColorStop(0.5, 'rgba(255, 252, 228, 0.92)');
-      sg.addColorStop(1, 'rgba(255, 245, 200, 0)');
-      fc.fillStyle = sg;
-      fc.beginPath();
-      fc.moveTo(-len, 0);
-      fc.quadraticCurveTo(0, -thick, len, 0);
-      fc.quadraticCurveTo(0, thick, -len, 0);
-      fc.fill();
-      fc.restore();
-    }
-    this.flareSprite = fs;
+  getPetalSprite(color) {
+    if (this.petalSprites.has(color)) return this.petalSprites.get(color);
+    const cv = document.createElement('canvas');
+    cv.width = 28;
+    cv.height = 18;
+    const g = cv.getContext('2d');
+    const rg = g.createRadialGradient(14, 9, 1, 14, 9, 12);
+    rg.addColorStop(0, '#ffffff');
+    rg.addColorStop(0.55, color);
+    rg.addColorStop(1, toRgba(color, 0));
+    g.fillStyle = color;
+    g.beginPath();
+    g.ellipse(14, 9, 11.5, 6.8, 0, 0, Math.PI * 2);
+    g.fill();
+    g.globalAlpha = 0.45;
+    g.fillStyle = rg;
+    g.beginPath();
+    g.ellipse(14, 9, 11.5, 6.8, 0, 0, Math.PI * 2);
+    g.fill();
+    this.petalSprites.set(color, cv);
+    return cv;
   }
 
   getOrbSprite(color) {
@@ -202,11 +189,17 @@ export class AtmosphereEngine {
     this.pc.height = Math.round(this.h * pDpr);
     this.px.setTransform(pDpr, 0, 0, pDpr, 0, 0);
 
+    this.fDpr = fDpr;
     this.fc.width = Math.round(this.w * fDpr);
     this.fc.height = Math.round(this.h * fDpr);
     this.fx.setTransform(fDpr, 0, 0, fDpr, 0, 0);
 
     if (this.arcanaParticles.length) this.seedArcana();
+  }
+
+  pauseAmbient(ms = 480) {
+    this._ambientPausedUntil = performance.now() + ms;
+    this.px.clearRect(0, 0, this.w, this.h);
   }
 
   seed() {
@@ -347,32 +340,26 @@ export class AtmosphereEngine {
     this.burst(x, y, { count: 28, speed: 13, colors: ['#fff8e7', '#f7c948', '#7fd99a'] });
   }
 
-  /* Dedicated Act 1 -> Act 2 Legendary Summon Burst VFX (zero shadowBlur) */
+  /* Dedicated Act 1 -> Act 2 Legendary Summon Burst VFX (source-over only, zero lighter overdraw) */
   legendaryReveal(x, y, isMobile = false) {
     this.sparks.length = 0;
-
-    this.flares.push({
-      x,
-      y,
-      p: 0,
-      maxR: Math.max(this.w, this.h) * 0.54
-    });
+    this.shards.length = 0;
+    this.revealPetals.length = 0;
 
     const x1 = isMobile ? this.w * 0.85 : this.w * 0.63;
     const x2 = isMobile ? this.w * 0.15 : this.w * 0.37;
     const y1 = -this.h * 0.04;
     const y2 = this.h * 1.04;
-    this.slashes.push({ x1, y1, x2, y2, p: 0 });
 
-    // 36 faceted pre-baked diamond light shards erupting from silhouette & seam
-    for (let i = 0; i < 36; i++) {
-      const fromSeam = i >= 24;
+    // 22 faceted pre-baked diamond light shards erupting from silhouette & seam
+    for (let i = 0; i < 22; i++) {
+      const fromSeam = i >= 15;
       const t = Math.random();
       const ox = fromSeam ? (x1 + (x2 - x1) * t) : x;
       const oy = fromSeam ? (y1 + (y2 - y1) * t) : y;
       const ang = fromSeam
         ? ((Math.random() < 0.5 ? 0 : Math.PI) + (Math.random() - 0.5) * 0.9)
-        : ((Math.PI * 2 * i) / 24 + (Math.random() - 0.5) * 0.28);
+        : ((Math.PI * 2 * i) / 15 + (Math.random() - 0.5) * 0.28);
       const sp = 6.5 + Math.random() * 17;
       const col = SHARD_COLORS[i % SHARD_COLORS.length];
       this.shards.push({
@@ -388,10 +375,11 @@ export class AtmosphereEngine {
       });
     }
 
-    // 16 outward drifting sunlit petals
-    for (let i = 0; i < 16; i++) {
+    // 12 outward drifting pre-baked sunlit petals
+    for (let i = 0; i < 12; i++) {
       const ang = Math.random() * Math.PI * 2;
       const sp = 3 + Math.random() * 8.5;
+      const col = REVEAL_PETAL_COLORS[i % REVEAL_PETAL_COLORS.length];
       this.revealPetals.push({
         x,
         y,
@@ -402,7 +390,7 @@ export class AtmosphereEngine {
         vr: (Math.random() - 0.5) * 0.08,
         ph: Math.random() * 6,
         a: 0.95,
-        c: REVEAL_PETAL_COLORS[i % REVEAL_PETAL_COLORS.length]
+        sprite: this.getPetalSprite(col)
       });
     }
   }
@@ -491,6 +479,7 @@ export class AtmosphereEngine {
   }
 
   drawParticles() {
+    if (performance.now() < this._ambientPausedUntil) return;
     const c = this.px;
     c.clearRect(0, 0, this.w, this.h);
 
@@ -540,7 +529,7 @@ export class AtmosphereEngine {
 
   drawFx() {
     const active = this.waves.length || this.sparks.length || this.dust.length ||
-      this.flares.length || this.slashes.length || this.shards.length || this.revealPetals.length;
+      this.shards.length || this.revealPetals.length;
     if (!active) {
       if (this._fxDirty) {
         this.fx.clearRect(0, 0, this.w, this.h);
@@ -550,6 +539,8 @@ export class AtmosphereEngine {
     }
     this._fxDirty = true;
     const c = this.fx;
+    const dpr = this.fDpr || 1;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, this.w, this.h);
 
     // 1. Concentric radial shockwaves (FR <-> EN toggle only, zero shadowBlur)
@@ -593,69 +584,8 @@ export class AtmosphereEngine {
       if (wv.p >= 1) this.waves.splice(i, 1);
     }
 
-    // 2. Single pre-baked 256x256 golden starburst flare (Legendary 5★ Reveal)
-    if (this.flares.length) {
-      c.save();
-      c.globalCompositeOperation = 'lighter';
-      for (let i = this.flares.length - 1; i >= 0; i--) {
-        const fl = this.flares[i];
-        fl.p += 0.024;
-        if (fl.p >= 1) { this.flares.splice(i, 1); continue; }
-        const easeOut = 1 - Math.pow(1 - fl.p, 3);
-        const a = Math.max(0, 1 - Math.pow(fl.p, 1.35));
-        const r = fl.maxR * (0.24 + 0.76 * easeOut);
-        c.save();
-        c.globalAlpha = a;
-        c.translate(fl.x, fl.y);
-        c.rotate(fl.p * 0.18);
-        c.drawImage(this.flareSprite, -r, -r, r * 2, r * 2);
-        c.restore();
-      }
-      c.restore();
-    }
-
-    // 3. Single GPU gradient quad diagonal light-slash flash (Legendary 5★ Reveal)
-    if (this.slashes.length) {
-      c.save();
-      c.globalCompositeOperation = 'lighter';
-      for (let i = this.slashes.length - 1; i >= 0; i--) {
-        const sl = this.slashes[i];
-        sl.p += 0.024;
-        if (sl.p >= 1) { this.slashes.splice(i, 1); continue; }
-        const cut = Math.min(1, sl.p * 3.8);
-        const a = sl.p < 0.14 ? 1 : Math.max(0, 1 - (sl.p - 0.14) / 0.86);
-        const ex = sl.x1 + (sl.x2 - sl.x1) * cut;
-        const ey = sl.y1 + (sl.y2 - sl.y1) * cut;
-        const dx = ex - sl.x1;
-        const dy = ey - sl.y1;
-        const len = Math.hypot(dx, dy);
-        if (len > 1) {
-          const ang = Math.atan2(dy, dx);
-          const hw = Math.max(3, (1 - sl.p) * 52);
-          c.save();
-          c.translate(sl.x1, sl.y1);
-          c.rotate(ang);
-          c.globalAlpha = a;
-          const sg = c.createLinearGradient(0, -hw, 0, hw);
-          sg.addColorStop(0, 'rgba(110, 231, 168, 0)');
-          sg.addColorStop(0.28, 'rgba(110, 231, 168, 0.34)');
-          sg.addColorStop(0.44, 'rgba(247, 210, 100, 0.85)');
-          sg.addColorStop(0.5, 'rgba(255, 255, 250, 1)');
-          sg.addColorStop(0.56, 'rgba(247, 210, 100, 0.85)');
-          sg.addColorStop(0.72, 'rgba(110, 231, 168, 0.34)');
-          sg.addColorStop(1, 'rgba(110, 231, 168, 0)');
-          c.fillStyle = sg;
-          c.fillRect(0, -hw, len, hw * 2);
-          c.restore();
-        }
-      }
-      c.restore();
-    }
-
-    // 4. Pre-baked faceted diamond light shards (36 stamps, zero shadowBlur)
+    // 2. Pre-baked faceted diamond light shards (22 stamps, source-over via direct setTransform)
     if (this.shards.length) {
-      c.save();
-      c.globalCompositeOperation = 'lighter';
       for (let i = this.shards.length - 1; i >= 0; i--) {
         const sh = this.shards[i];
         sh.x += sh.vx;
@@ -665,40 +595,38 @@ export class AtmosphereEngine {
         sh.rot += sh.vr;
         sh.a -= 0.019;
         if (sh.a <= 0) { this.shards.splice(i, 1); continue; }
-        c.save();
+        const cos = Math.cos(sh.rot);
+        const sin = Math.sin(sh.rot);
+        c.setTransform(cos * dpr, sin * dpr, -sin * dpr, cos * dpr, sh.x * dpr, sh.y * dpr);
         c.globalAlpha = sh.a;
-        c.translate(sh.x, sh.y);
-        c.rotate(sh.rot);
         c.drawImage(sh.sprite, -sh.len, -sh.len * 0.5, sh.len * 2, sh.len);
-        c.restore();
       }
-      c.restore();
     }
 
-    // 5. Drifting celebration petals
-    for (let i = this.revealPetals.length - 1; i >= 0; i--) {
-      const rp = this.revealPetals[i];
-      rp.ph += 0.05;
-      rp.x += rp.vx + 0.35;
-      rp.y += rp.vy + 0.15 * Math.sin(rp.ph);
-      rp.vx *= 0.955;
-      rp.vy *= 0.955;
-      rp.rot += rp.vr;
-      rp.a -= 0.011;
-      if (rp.a <= 0) { this.revealPetals.splice(i, 1); continue; }
-      c.save();
-      c.globalAlpha = rp.a;
-      c.translate(rp.x, rp.y);
-      c.rotate(rp.rot);
-      c.scale(1, 0.55 + 0.45 * Math.abs(Math.sin(rp.ph)));
-      c.fillStyle = rp.c;
-      c.beginPath();
-      c.ellipse(0, 0, rp.s * 1.45, rp.s * 0.8, 0, 0, Math.PI * 2);
-      c.fill();
-      c.restore();
+    // 3. Drifting pre-baked celebration petals (12 stamps, source-over via direct setTransform)
+    if (this.revealPetals.length) {
+      for (let i = this.revealPetals.length - 1; i >= 0; i--) {
+        const rp = this.revealPetals[i];
+        rp.ph += 0.05;
+        rp.x += rp.vx + 0.35;
+        rp.y += rp.vy + 0.15 * Math.sin(rp.ph);
+        rp.vx *= 0.955;
+        rp.vy *= 0.955;
+        rp.rot += rp.vr;
+        rp.a -= 0.011;
+        if (rp.a <= 0) { this.revealPetals.splice(i, 1); continue; }
+        const cos = Math.cos(rp.rot);
+        const sin = Math.sin(rp.rot);
+        const pw = rp.s * 3.2;
+        const ph = rp.s * 1.9 * (0.55 + 0.45 * Math.abs(Math.sin(rp.ph)));
+        c.setTransform(cos * dpr, sin * dpr, -sin * dpr, cos * dpr, rp.x * dpr, rp.y * dpr);
+        c.globalAlpha = rp.a;
+        c.drawImage(rp.sprite, -pw * 0.5, -ph * 0.5, pw, ph);
+      }
     }
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // 6. Standard orb-sprite sparks (zero shadowBlur)
+    // 4. Standard orb-sprite sparks (zero shadowBlur)
     for (let i = this.sparks.length - 1; i >= 0; i--) {
       const s = this.sparks[i];
       s.x += s.vx; s.y += s.vy; s.vx *= 0.95; s.vy *= 0.95; s.a -= 0.022;
@@ -708,7 +636,7 @@ export class AtmosphereEngine {
       c.drawImage(s.sprite, s.x - sz * 0.5, s.y - sz * 0.5, sz, sz);
     }
 
-    // 7. Book-drop dust puffs
+    // 5. Book-drop dust puffs
     for (let i = this.dust.length - 1; i >= 0; i--) {
       const d = this.dust[i];
       d.x += d.vx; d.y += d.vy; d.vx *= 0.96; d.vy *= 0.97; d.r += d.grow; d.a -= 0.008;
