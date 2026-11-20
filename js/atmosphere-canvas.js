@@ -1,7 +1,7 @@
 /* ============================================================================
-   ATMOSPHERE ENGINE — Act 1 LoR Void Game-Design particles ('arcana'),
-   Act 2/3 scene particles ('meadow', 'table'), dust puffs, spark bursts,
-   FR/EN runic shockwave, and decoupled 5★ Legendary Summon Burst VFX.
+   ATMOSPHERE ENGINE — Zero-shadowBlur pre-baked sprite & compositor engine.
+   Act 1 LoR Void ('arcana'), Act 2/3 motes ('meadow', 'table'), dust puffs,
+   FR/EN radial shockwave, and decoupled 5★ Legendary Summon Burst VFX.
    ============================================================================ */
 
 const PALETTES = {
@@ -16,7 +16,7 @@ const PALETTES = {
 };
 
 const PETALS = ['#f7c6d0', '#fff2e0', '#f3b6c2'];
-const RUNES = ['ᚠ', 'ᚢ', 'ᚦ', 'ᚨ', 'ᚱ', 'ᚲ', 'ᚷ', 'ᚹ', 'ᛉ', 'ᛋ', 'ᛏ', 'ᛒ', 'ᛖ', 'ᛗ', 'ᛚ', 'ᛞ'];
+const RUNES = ['ᚠ', 'ᚢ', 'ᚦ', 'ᚨ', 'ᚱ', 'ᚲ', 'ᚷ', 'ᚹ', 'ᛉ', 'ᛋ', 'ᛏ', 'ᛒ'];
 const ARCANA_GLYPHS = ['ᚠ', 'ᚢ', 'ᚦ', 'ᚨ', 'ᚱ', 'ᚲ', 'ᚷ', 'ᚹ', 'ᛉ', 'ᛋ', '✦', '◇', '∆'];
 const EMBER_COLORS = ['#ffd97d', '#f6c453', '#fff3c4'];
 const SHARD_COLORS = ['#fff8dc', '#f6d365', '#d4af37', '#6ee7a8', '#2dd48f'];
@@ -44,6 +44,17 @@ const OCT_EDGES = [
   [2, 4], [2, 5], [3, 4], [3, 5]
 ];
 
+function toRgba(hex, a) {
+  if (!hex.startsWith('#')) return hex;
+  const h = hex.length === 4
+    ? `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`
+    : hex;
+  const r = parseInt(h.slice(1, 3), 16);
+  const g = parseInt(h.slice(3, 5), 16);
+  const b = parseInt(h.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
 export class AtmosphereEngine {
   constructor(particleCanvas, fxCanvas) {
     this.pc = particleCanvas;
@@ -62,8 +73,13 @@ export class AtmosphereEngine {
     this.slashes = [];
     this.shards = [];
     this.revealPetals = [];
+    this.orbSprites = new Map();
+    this.shardSprites = new Map();
+    this._fxDirty = false;
     this.t = 0;
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    this.buildSprites();
     this.resize();
     window.addEventListener('resize', () => this.resize());
     this.seed();
@@ -71,15 +87,125 @@ export class AtmosphereEngine {
     requestAnimationFrame(this.loop);
   }
 
+  buildSprites() {
+    // Warm up orb & shard caches
+    [...EMBER_COLORS, ...PALETTES.fireflies, ...PALETTES.meadow, '#fff8e7', '#f7c948', '#7fd99a'].forEach((c) => this.getOrbSprite(c));
+    SHARD_COLORS.forEach((c) => this.getShardSprite(c));
+
+    // Pre-bake 256x256 8-spike golden-emerald starburst flare
+    const fs = document.createElement('canvas');
+    fs.width = 256;
+    fs.height = 256;
+    const fc = fs.getContext('2d');
+    const cx = 128; const cy = 128;
+
+    const glow = fc.createRadialGradient(cx, cy, 0, cx, cy, 120);
+    glow.addColorStop(0, 'rgba(255, 252, 236, 0.94)');
+    glow.addColorStop(0.24, 'rgba(247, 210, 100, 0.56)');
+    glow.addColorStop(0.58, 'rgba(110, 231, 168, 0.18)');
+    glow.addColorStop(1, 'rgba(247, 210, 100, 0)');
+    fc.fillStyle = glow;
+    fc.beginPath();
+    fc.arc(cx, cy, 120, 0, Math.PI * 2);
+    fc.fill();
+
+    for (let s = 0; s < 8; s++) {
+      const ang = (Math.PI * s) / 4;
+      const len = s % 2 === 0 ? 124 : 78;
+      const thick = s % 2 === 0 ? 11 : 6;
+      fc.save();
+      fc.translate(cx, cy);
+      fc.rotate(ang);
+      const sg = fc.createLinearGradient(-len, 0, len, 0);
+      sg.addColorStop(0, 'rgba(255, 245, 200, 0)');
+      sg.addColorStop(0.5, 'rgba(255, 252, 228, 0.92)');
+      sg.addColorStop(1, 'rgba(255, 245, 200, 0)');
+      fc.fillStyle = sg;
+      fc.beginPath();
+      fc.moveTo(-len, 0);
+      fc.quadraticCurveTo(0, -thick, len, 0);
+      fc.quadraticCurveTo(0, thick, -len, 0);
+      fc.fill();
+      fc.restore();
+    }
+    this.flareSprite = fs;
+  }
+
+  getOrbSprite(color) {
+    if (this.orbSprites.has(color)) return this.orbSprites.get(color);
+    const cv = document.createElement('canvas');
+    cv.width = 48;
+    cv.height = 48;
+    const g = cv.getContext('2d');
+    const rg = g.createRadialGradient(24, 24, 0, 24, 24, 24);
+    rg.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    rg.addColorStop(0.24, toRgba(color, 0.92));
+    rg.addColorStop(0.54, toRgba(color, 0.30));
+    rg.addColorStop(1, toRgba(color, 0));
+    g.fillStyle = rg;
+    g.beginPath();
+    g.arc(24, 24, 24, 0, Math.PI * 2);
+    g.fill();
+    this.orbSprites.set(color, cv);
+    return cv;
+  }
+
+  getShardSprite(color) {
+    if (this.shardSprites.has(color)) return this.shardSprites.get(color);
+    const cv = document.createElement('canvas');
+    cv.width = 56;
+    cv.height = 28;
+    const g = cv.getContext('2d');
+
+    g.save();
+    g.translate(28, 14);
+    g.scale(1, 0.52);
+    const halo = g.createRadialGradient(0, 0, 0, 0, 0, 26);
+    halo.addColorStop(0, toRgba(color, 0.58));
+    halo.addColorStop(1, toRgba(color, 0));
+    g.fillStyle = halo;
+    g.beginPath();
+    g.arc(0, 0, 26, 0, Math.PI * 2);
+    g.fill();
+    g.restore();
+
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(50, 14);
+    g.lineTo(28, 19.5);
+    g.lineTo(12, 14);
+    g.lineTo(28, 8.5);
+    g.closePath();
+    g.fill();
+
+    g.fillStyle = '#ffffff';
+    g.beginPath();
+    g.moveTo(41, 14);
+    g.lineTo(28, 16.5);
+    g.lineTo(19, 14);
+    g.lineTo(28, 11.5);
+    g.closePath();
+    g.fill();
+
+    this.shardSprites.set(color, cv);
+    return cv;
+  }
+
   resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rawDpr = window.devicePixelRatio || 1;
+    const pDpr = Math.min(rawDpr, 1.5);
+    const fDpr = Math.min(rawDpr, 1.25);
     this.w = window.innerWidth;
     this.h = window.innerHeight;
-    [this.pc, this.fc].forEach((c) => {
-      c.width = Math.round(this.w * dpr);
-      c.height = Math.round(this.h * dpr);
-      c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
-    });
+
+    this.pc.width = Math.round(this.w * pDpr);
+    this.pc.height = Math.round(this.h * pDpr);
+    this.px.setTransform(pDpr, 0, 0, pDpr, 0, 0);
+
+    this.fc.width = Math.round(this.w * fDpr);
+    this.fc.height = Math.round(this.h * fDpr);
+    this.fx.setTransform(fDpr, 0, 0, fDpr, 0, 0);
+
     if (this.arcanaParticles.length) this.seedArcana();
   }
 
@@ -104,6 +230,14 @@ export class AtmosphereEngine {
     const roll = Math.random();
     const kind = roll < 0.45 ? 'ember' : roll < 0.65 ? 'poly' : roll < 0.83 ? 'rune' : 'wisp';
     const polyShape = Math.random() < 0.65 ? 'd20' : 'd8';
+    const c = kind === 'ember'
+      ? EMBER_COLORS[Math.floor(Math.random() * EMBER_COLORS.length)]
+      : kind === 'poly'
+        ? (Math.random() < 0.55 ? 'rgba(236, 206, 130, 0.46)' : 'rgba(145, 192, 255, 0.42)')
+        : kind === 'rune'
+          ? (Math.random() < 0.55 ? '#ecd27a' : '#b7cdf2')
+          : (Math.random() < 0.5 ? '#8ec0ff' : '#ffd97d');
+
     return {
       kind,
       polyShape,
@@ -120,13 +254,8 @@ export class AtmosphereEngine {
       vrY: (Math.random() - 0.5) * 0.018,
       ph: Math.random() * Math.PI * 2,
       glyph: ARCANA_GLYPHS[Math.floor(Math.random() * ARCANA_GLYPHS.length)],
-      c: kind === 'ember'
-        ? EMBER_COLORS[Math.floor(Math.random() * EMBER_COLORS.length)]
-        : kind === 'poly'
-          ? (Math.random() < 0.55 ? 'rgba(236, 206, 130, 0.46)' : 'rgba(145, 192, 255, 0.42)')
-          : kind === 'rune'
-            ? (Math.random() < 0.55 ? '#ecd27a' : '#b7cdf2')
-            : (Math.random() < 0.5 ? '#8ec0ff' : '#ffd97d'),
+      c,
+      sprite: kind === 'ember' ? this.getOrbSprite(c) : null,
       trail: []
     };
   }
@@ -139,6 +268,7 @@ export class AtmosphereEngine {
 
   makeParticle(anywhere = false) {
     const pal = this.palette();
+    const c = pal[Math.floor(Math.random() * pal.length)];
     return {
       x: Math.random() * this.w,
       y: anywhere ? Math.random() * this.h : this.h + 10,
@@ -147,7 +277,8 @@ export class AtmosphereEngine {
       vy: -0.1 - Math.random() * 0.35,
       a: 0.25 + Math.random() * 0.55,
       ph: Math.random() * Math.PI * 2,
-      c: pal[Math.floor(Math.random() * pal.length)]
+      c,
+      sprite: this.getOrbSprite(c)
     };
   }
 
@@ -171,27 +302,31 @@ export class AtmosphereEngine {
     this.tint = tint;
     if (mode === 'arcana' && prev !== 'arcana') this.seedArcana();
     const pal = this.palette();
-    this.particles.forEach((p) => { p.c = pal[Math.floor(Math.random() * pal.length)]; });
+    this.particles.forEach((p) => {
+      p.c = pal[Math.floor(Math.random() * pal.length)];
+      p.sprite = this.getOrbSprite(p.c);
+    });
   }
 
   setTint(tint) { this.setMode(this.mode, tint); }
 
   /* ------------------------------------------------------------ effects */
-  burst(x, y, { count = 60, colors = ['#fff3c4', '#f6d77a', '#d4af37'], speed = 12, runes = false } = {}) {
+  burst(x, y, { count = 38, colors = ['#fff3c4', '#f6d77a', '#d4af37'], speed = 12 } = {}) {
     for (let i = 0; i < count; i++) {
       const ang = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.3;
       const sp = speed * (0.3 + Math.random() * 0.9);
+      const col = colors[i % colors.length];
       this.sparks.push({
         x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
         r: 1.5 + Math.random() * 3.5, a: 1,
-        c: colors[i % colors.length],
-        rune: runes && i % 4 === 0 ? RUNES[i % RUNES.length] : null
+        c: col,
+        sprite: this.getOrbSprite(col)
       });
     }
   }
 
   dustPuff(x, y, width = 400) {
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < 48; i++) {
       const side = Math.random() < 0.5 ? -1 : 1;
       this.dust.push({
         x: x + (Math.random() - 0.5) * width,
@@ -205,20 +340,22 @@ export class AtmosphereEngine {
     }
   }
 
-  /* Kept untouched for FR <-> EN language switch */
+  /* Optimized radial shockwave (used exclusively by FR <-> EN language toggle) */
   shockwave(x, y, { color = [247, 201, 72], runes = true } = {}) {
     const max = Math.hypot(Math.max(x, this.w - x), Math.max(y, this.h - y)) * 1.15;
     this.waves.push({ x, y, p: 0, max, color, runes, rot: 0 });
-    this.burst(x, y, { count: 64, speed: 14, runes, colors: ['#fff8e7', '#f7c948', '#7fd99a'] });
+    this.burst(x, y, { count: 28, speed: 13, colors: ['#fff8e7', '#f7c948', '#7fd99a'] });
   }
 
-  /* Dedicated Act 1 -> Act 2 Legendary Summon Burst VFX */
+  /* Dedicated Act 1 -> Act 2 Legendary Summon Burst VFX (zero shadowBlur) */
   legendaryReveal(x, y, isMobile = false) {
+    this.sparks.length = 0;
+
     this.flares.push({
       x,
       y,
       p: 0,
-      maxR: Math.max(this.w, this.h) * 0.52
+      maxR: Math.max(this.w, this.h) * 0.54
     });
 
     const x1 = isMobile ? this.w * 0.85 : this.w * 0.63;
@@ -227,32 +364,32 @@ export class AtmosphereEngine {
     const y2 = this.h * 1.04;
     this.slashes.push({ x1, y1, x2, y2, p: 0 });
 
-    // Faceted diamond light shards erupting from the silhouette & diagonal slash
-    for (let i = 0; i < 72; i++) {
-      const fromSeam = i >= 48;
+    // 36 faceted pre-baked diamond light shards erupting from silhouette & seam
+    for (let i = 0; i < 36; i++) {
+      const fromSeam = i >= 24;
       const t = Math.random();
       const ox = fromSeam ? (x1 + (x2 - x1) * t) : x;
       const oy = fromSeam ? (y1 + (y2 - y1) * t) : y;
       const ang = fromSeam
         ? ((Math.random() < 0.5 ? 0 : Math.PI) + (Math.random() - 0.5) * 0.9)
-        : ((Math.PI * 2 * i) / 48 + (Math.random() - 0.5) * 0.28);
-      const sp = 6 + Math.random() * 18;
+        : ((Math.PI * 2 * i) / 24 + (Math.random() - 0.5) * 0.28);
+      const sp = 6.5 + Math.random() * 17;
+      const col = SHARD_COLORS[i % SHARD_COLORS.length];
       this.shards.push({
         x: ox,
         y: oy,
         vx: Math.cos(ang) * sp,
         vy: Math.sin(ang) * sp - 1.2,
-        len: 7 + Math.random() * 13,
-        w: 2.2 + Math.random() * 2.8,
+        len: 10 + Math.random() * 14,
         rot: ang,
         vr: (Math.random() - 0.5) * 0.18,
         a: 1,
-        c: SHARD_COLORS[i % SHARD_COLORS.length]
+        sprite: this.getShardSprite(col)
       });
     }
 
-    // Burst of sunlit petals settling into breeze drift
-    for (let i = 0; i < 28; i++) {
+    // 16 outward drifting sunlit petals
+    for (let i = 0; i < 16; i++) {
       const ang = Math.random() * Math.PI * 2;
       const sp = 3 + Math.random() * 8.5;
       this.revealPetals.push({
@@ -328,14 +465,9 @@ export class AtmosphereEngine {
       const alpha = Math.max(0, Math.min(1, env * pulse));
 
       if (p.kind === 'ember') {
-        c.globalAlpha = alpha * 0.82;
-        c.fillStyle = p.c;
-        c.shadowColor = p.c;
-        c.shadowBlur = 11;
-        c.beginPath();
-        c.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        c.fill();
-        c.shadowBlur = 0;
+        c.globalAlpha = alpha * 0.88;
+        const sz = p.r * 7;
+        c.drawImage(p.sprite, p.x - sz * 0.5, p.y - sz * 0.5, sz, sz);
       } else if (p.kind === 'poly') {
         c.globalAlpha = alpha * 0.95;
         this.drawWirePoly(c, p);
@@ -343,22 +475,16 @@ export class AtmosphereEngine {
         c.globalAlpha = alpha * 0.46;
         c.font = `600 ${Math.round(12 + (p.r % 4))}px "Cinzel", serif`;
         c.fillStyle = p.c;
-        c.shadowColor = p.c;
-        c.shadowBlur = 8;
         c.fillText(p.glyph, p.x, p.y);
-        c.shadowBlur = 0;
       } else if (p.kind === 'wisp' && p.trail.length > 1) {
         c.globalAlpha = alpha * 0.48;
         c.strokeStyle = p.c;
         c.lineWidth = 1.6;
         c.lineCap = 'round';
-        c.shadowColor = p.c;
-        c.shadowBlur = 10;
         c.beginPath();
         c.moveTo(p.trail[0][0], p.trail[0][1]);
         for (let k = 1; k < p.trail.length; k++) c.lineTo(p.trail[k][0], p.trail[k][1]);
         c.stroke();
-        c.shadowBlur = 0;
       }
     }
     c.globalAlpha = 1;
@@ -385,15 +511,11 @@ export class AtmosphereEngine {
       }
       if (p.y < -12 || p.x < -20 || p.x > this.w + 20 || p.y > this.h + 20) Object.assign(p, this.makeParticle(firefly));
       const flick = firefly ? Math.max(0, Math.sin(p.ph * 1.6)) : 0.6 + 0.4 * Math.sin(p.ph);
-      c.globalAlpha = p.a * flick;
-      c.fillStyle = p.c;
-      c.shadowColor = p.c;
-      c.shadowBlur = firefly ? 14 : 6;
-      c.beginPath();
-      c.arc(p.x, p.y, firefly ? p.r * 1.2 : p.r, 0, Math.PI * 2);
-      c.fill();
+      c.globalAlpha = Math.min(1, p.a * flick * 1.15);
+      const sz = (firefly ? p.r * 1.2 : p.r) * 7;
+      c.drawImage(p.sprite, p.x - sz * 0.5, p.y - sz * 0.5, sz, sz);
     }
-    c.shadowBlur = 0;
+
     if (this.mode === 'meadow') {
       for (const f of this.petals) {
         f.ph += 0.03;
@@ -417,165 +539,143 @@ export class AtmosphereEngine {
   }
 
   drawFx() {
-    const c = this.fx;
-    c.clearRect(0, 0, this.w, this.h);
-    if (!this.waves.length && !this.sparks.length && !this.dust.length &&
-        !this.flares.length && !this.slashes.length && !this.shards.length && !this.revealPetals.length) {
+    const active = this.waves.length || this.sparks.length || this.dust.length ||
+      this.flares.length || this.slashes.length || this.shards.length || this.revealPetals.length;
+    if (!active) {
+      if (this._fxDirty) {
+        this.fx.clearRect(0, 0, this.w, this.h);
+        this._fxDirty = false;
+      }
       return;
     }
+    this._fxDirty = true;
+    const c = this.fx;
+    c.clearRect(0, 0, this.w, this.h);
 
-    // 1. Runic circular shockwaves (used exclusively by FR <-> EN language toggle)
+    // 1. Concentric radial shockwaves (FR <-> EN toggle only, zero shadowBlur)
     for (let i = this.waves.length - 1; i >= 0; i--) {
       const wv = this.waves[i];
-      wv.p += 0.0125;
-      wv.rot += 0.02;
+      wv.p += 0.015;
+      wv.rot += 0.022;
       const e = 1 - Math.pow(1 - Math.min(1, wv.p), 2.4);
       const r = 10 + e * wv.max;
-      const a = Math.max(0, 1 - Math.pow(wv.p, 1.5));
+      const a = Math.max(0, 1 - Math.pow(wv.p, 1.45));
       const [cr, cg, cb] = wv.color;
-      if (wv.p < 0.3) {
-        c.fillStyle = `rgba(255,246,210,${(1 - wv.p / 0.3) * 0.22})`;
-        c.fillRect(0, 0, this.w, this.h);
+
+      c.strokeStyle = `rgba(${cr},${cg},${cb},${a * 0.22})`;
+      c.lineWidth = 22 * a + 2;
+      c.beginPath();
+      c.arc(wv.x, wv.y, r, 0, Math.PI * 2);
+      c.stroke();
+
+      c.strokeStyle = `rgba(255,244,196,${a})`;
+      c.lineWidth = 4 * a + 1.5;
+      c.beginPath();
+      c.arc(wv.x, wv.y, r, 0, Math.PI * 2);
+      c.stroke();
+
+      if (r > 36) {
+        c.strokeStyle = `rgba(127,217,154,${a * 0.7})`;
+        c.lineWidth = 2.5 * a + 1;
+        c.beginPath();
+        c.arc(wv.x, wv.y, r * 0.84, 0, Math.PI * 2);
+        c.stroke();
       }
-      c.save();
-      c.shadowColor = `rgb(${cr},${cg},${cb})`;
-      c.shadowBlur = 34;
-      c.strokeStyle = `rgba(${cr},${cg},${cb},${a})`;
-      c.lineWidth = 12 * a + 2;
-      c.beginPath(); c.arc(wv.x, wv.y, r, 0, Math.PI * 2); c.stroke();
-      if (r > 40) {
-        c.strokeStyle = `rgba(127,217,154,${a * 0.75})`;
-        c.lineWidth = 5 * a + 1;
-        c.beginPath(); c.arc(wv.x, wv.y, r * 0.82, 0, Math.PI * 2); c.stroke();
-      }
+
       if (wv.runes) {
-        c.font = `700 ${Math.round(16 + 10 * a)}px "Cinzel", serif`;
+        c.font = `700 ${Math.round(16 + 8 * a)}px "Cinzel", serif`;
         c.fillStyle = `rgba(255,248,225,${a})`;
-        c.shadowColor = '#d4af37';
-        c.shadowBlur = 14;
         for (let k = 0; k < RUNES.length; k++) {
           const ang = (Math.PI * 2 * k) / RUNES.length + wv.rot;
           c.fillText(RUNES[k], wv.x + Math.cos(ang) * r * 0.91, wv.y + Math.sin(ang) * r * 0.91);
         }
       }
-      c.restore();
       if (wv.p >= 1) this.waves.splice(i, 1);
     }
 
-    // 2. Radiant 8-spike golden starburst flares (Legendary 5★ Character Reveal)
-    for (let i = this.flares.length - 1; i >= 0; i--) {
-      const fl = this.flares[i];
-      fl.p += 0.019;
-      if (fl.p >= 1) { this.flares.splice(i, 1); continue; }
-      const easeOut = 1 - Math.pow(1 - fl.p, 3);
-      const a = Math.max(0, 1 - Math.pow(fl.p, 1.35));
-      const r = fl.maxR * (0.2 + 0.8 * easeOut);
-
+    // 2. Single pre-baked 256x256 golden starburst flare (Legendary 5★ Reveal)
+    if (this.flares.length) {
       c.save();
       c.globalCompositeOperation = 'lighter';
-      const glow = c.createRadialGradient(fl.x, fl.y, 0, fl.x, fl.y, r * 0.85);
-      glow.addColorStop(0, `rgba(255, 252, 236, ${a * 0.85})`);
-      glow.addColorStop(0.28, `rgba(247, 210, 100, ${a * 0.55})`);
-      glow.addColorStop(0.65, `rgba(110, 231, 168, ${a * 0.16})`);
-      glow.addColorStop(1, 'rgba(247, 210, 100, 0)');
-      c.fillStyle = glow;
-      c.beginPath();
-      c.arc(fl.x, fl.y, r * 0.85, 0, Math.PI * 2);
-      c.fill();
-
-      // 8-spike tapered starburst + wide horizontal gleam
-      for (let s = 0; s < 8; s++) {
-        const ang = (Math.PI * s) / 4;
-        const len = s % 2 === 0 ? r * 1.15 : r * 0.68;
-        const thick = (s % 2 === 0 ? 18 : 10) * a;
+      for (let i = this.flares.length - 1; i >= 0; i--) {
+        const fl = this.flares[i];
+        fl.p += 0.024;
+        if (fl.p >= 1) { this.flares.splice(i, 1); continue; }
+        const easeOut = 1 - Math.pow(1 - fl.p, 3);
+        const a = Math.max(0, 1 - Math.pow(fl.p, 1.35));
+        const r = fl.maxR * (0.24 + 0.76 * easeOut);
         c.save();
+        c.globalAlpha = a;
         c.translate(fl.x, fl.y);
-        c.rotate(ang);
-        const sg = c.createLinearGradient(-len, 0, len, 0);
-        sg.addColorStop(0, 'rgba(255, 245, 200, 0)');
-        sg.addColorStop(0.5, `rgba(255, 250, 224, ${a * 0.92})`);
-        sg.addColorStop(1, 'rgba(255, 245, 200, 0)');
-        c.fillStyle = sg;
-        c.beginPath();
-        c.moveTo(-len, 0);
-        c.quadraticCurveTo(0, -thick, len, 0);
-        c.quadraticCurveTo(0, thick, -len, 0);
-        c.fill();
+        c.rotate(fl.p * 0.18);
+        c.drawImage(this.flareSprite, -r, -r, r * 2, r * 2);
         c.restore();
       }
       c.restore();
     }
 
-    // 3. Diagonal light-slash flash aligned with Act 2 split seam (Legendary 5★ Reveal)
-    for (let i = this.slashes.length - 1; i >= 0; i--) {
-      const sl = this.slashes[i];
-      sl.p += 0.021;
-      if (sl.p >= 1) { this.slashes.splice(i, 1); continue; }
-      const cut = Math.min(1, sl.p * 3.8);
-      const a = sl.p < 0.14 ? 1 : Math.max(0, 1 - (sl.p - 0.14) / 0.86);
-      const ex = sl.x1 + (sl.x2 - sl.x1) * cut;
-      const ey = sl.y1 + (sl.y2 - sl.y1) * cut;
-
+    // 3. Single GPU gradient quad diagonal light-slash flash (Legendary 5★ Reveal)
+    if (this.slashes.length) {
       c.save();
       c.globalCompositeOperation = 'lighter';
-      c.lineCap = 'round';
-      // Wide golden-emerald outer flash
-      c.strokeStyle = `rgba(110, 231, 168, ${a * 0.5})`;
-      c.shadowColor = '#f7d264';
-      c.shadowBlur = 42;
-      c.lineWidth = Math.max(2, (1 - sl.p) * 92);
-      c.beginPath();
-      c.moveTo(sl.x1, sl.y1);
-      c.lineTo(ex, ey);
-      c.stroke();
-
-      // Golden core flare
-      c.strokeStyle = `rgba(247, 210, 100, ${a * 0.85})`;
-      c.lineWidth = Math.max(1.5, (1 - sl.p) * 32);
-      c.beginPath();
-      c.moveTo(sl.x1, sl.y1);
-      c.lineTo(ex, ey);
-      c.stroke();
-
-      // Bright razor white core
-      c.strokeStyle = `rgba(255, 255, 250, ${a})`;
-      c.lineWidth = Math.max(1, (1 - sl.p) * 9);
-      c.beginPath();
-      c.moveTo(sl.x1, sl.y1);
-      c.lineTo(ex, ey);
-      c.stroke();
+      for (let i = this.slashes.length - 1; i >= 0; i--) {
+        const sl = this.slashes[i];
+        sl.p += 0.024;
+        if (sl.p >= 1) { this.slashes.splice(i, 1); continue; }
+        const cut = Math.min(1, sl.p * 3.8);
+        const a = sl.p < 0.14 ? 1 : Math.max(0, 1 - (sl.p - 0.14) / 0.86);
+        const ex = sl.x1 + (sl.x2 - sl.x1) * cut;
+        const ey = sl.y1 + (sl.y2 - sl.y1) * cut;
+        const dx = ex - sl.x1;
+        const dy = ey - sl.y1;
+        const len = Math.hypot(dx, dy);
+        if (len > 1) {
+          const ang = Math.atan2(dy, dx);
+          const hw = Math.max(3, (1 - sl.p) * 52);
+          c.save();
+          c.translate(sl.x1, sl.y1);
+          c.rotate(ang);
+          c.globalAlpha = a;
+          const sg = c.createLinearGradient(0, -hw, 0, hw);
+          sg.addColorStop(0, 'rgba(110, 231, 168, 0)');
+          sg.addColorStop(0.28, 'rgba(110, 231, 168, 0.34)');
+          sg.addColorStop(0.44, 'rgba(247, 210, 100, 0.85)');
+          sg.addColorStop(0.5, 'rgba(255, 255, 250, 1)');
+          sg.addColorStop(0.56, 'rgba(247, 210, 100, 0.85)');
+          sg.addColorStop(0.72, 'rgba(110, 231, 168, 0.34)');
+          sg.addColorStop(1, 'rgba(110, 231, 168, 0)');
+          c.fillStyle = sg;
+          c.fillRect(0, -hw, len, hw * 2);
+          c.restore();
+        }
+      }
       c.restore();
     }
 
-    // 4. Explosive golden-emerald diamond shards (Legendary 5★ Reveal)
-    for (let i = this.shards.length - 1; i >= 0; i--) {
-      const sh = this.shards[i];
-      sh.x += sh.vx;
-      sh.y += sh.vy;
-      sh.vx *= 0.945;
-      sh.vy *= 0.945;
-      sh.rot += sh.vr;
-      sh.a -= 0.015;
-      if (sh.a <= 0) { this.shards.splice(i, 1); continue; }
+    // 4. Pre-baked faceted diamond light shards (36 stamps, zero shadowBlur)
+    if (this.shards.length) {
       c.save();
       c.globalCompositeOperation = 'lighter';
-      c.globalAlpha = sh.a;
-      c.translate(sh.x, sh.y);
-      c.rotate(sh.rot);
-      c.fillStyle = sh.c;
-      c.shadowColor = sh.c;
-      c.shadowBlur = 10;
-      c.beginPath();
-      c.moveTo(sh.len, 0);
-      c.lineTo(0, sh.w);
-      c.lineTo(-sh.len * 0.6, 0);
-      c.lineTo(0, -sh.w);
-      c.closePath();
-      c.fill();
+      for (let i = this.shards.length - 1; i >= 0; i--) {
+        const sh = this.shards[i];
+        sh.x += sh.vx;
+        sh.y += sh.vy;
+        sh.vx *= 0.942;
+        sh.vy *= 0.942;
+        sh.rot += sh.vr;
+        sh.a -= 0.019;
+        if (sh.a <= 0) { this.shards.splice(i, 1); continue; }
+        c.save();
+        c.globalAlpha = sh.a;
+        c.translate(sh.x, sh.y);
+        c.rotate(sh.rot);
+        c.drawImage(sh.sprite, -sh.len, -sh.len * 0.5, sh.len * 2, sh.len);
+        c.restore();
+      }
       c.restore();
     }
 
-    // 5. Outward drifting celebration petals (Legendary 5★ Reveal)
+    // 5. Drifting celebration petals
     for (let i = this.revealPetals.length - 1; i >= 0; i--) {
       const rp = this.revealPetals[i];
       rp.ph += 0.05;
@@ -584,7 +684,7 @@ export class AtmosphereEngine {
       rp.vx *= 0.955;
       rp.vy *= 0.955;
       rp.rot += rp.vr;
-      rp.a -= 0.009;
+      rp.a -= 0.011;
       if (rp.a <= 0) { this.revealPetals.splice(i, 1); continue; }
       c.save();
       c.globalAlpha = rp.a;
@@ -592,36 +692,26 @@ export class AtmosphereEngine {
       c.rotate(rp.rot);
       c.scale(1, 0.55 + 0.45 * Math.abs(Math.sin(rp.ph)));
       c.fillStyle = rp.c;
-      c.shadowColor = '#ffe6a3';
-      c.shadowBlur = 6;
       c.beginPath();
       c.ellipse(0, 0, rp.s * 1.45, rp.s * 0.8, 0, 0, Math.PI * 2);
       c.fill();
       c.restore();
     }
 
-    // 6. Standard sparks
+    // 6. Standard orb-sprite sparks (zero shadowBlur)
     for (let i = this.sparks.length - 1; i >= 0; i--) {
       const s = this.sparks[i];
-      s.x += s.vx; s.y += s.vy; s.vx *= 0.955; s.vy *= 0.955; s.a -= 0.017;
+      s.x += s.vx; s.y += s.vy; s.vx *= 0.95; s.vy *= 0.95; s.a -= 0.022;
       if (s.a <= 0) { this.sparks.splice(i, 1); continue; }
       c.globalAlpha = s.a;
-      c.fillStyle = s.c;
-      c.shadowColor = s.c;
-      c.shadowBlur = 12;
-      if (s.rune) {
-        c.font = '700 16px "Cinzel", serif';
-        c.fillText(s.rune, s.x, s.y);
-      } else {
-        c.beginPath(); c.arc(s.x, s.y, s.r, 0, Math.PI * 2); c.fill();
-      }
+      const sz = s.r * 7;
+      c.drawImage(s.sprite, s.x - sz * 0.5, s.y - sz * 0.5, sz, sz);
     }
-    c.shadowBlur = 0;
 
     // 7. Book-drop dust puffs
     for (let i = this.dust.length - 1; i >= 0; i--) {
       const d = this.dust[i];
-      d.x += d.vx; d.y += d.vy; d.vx *= 0.96; d.vy *= 0.97; d.r += d.grow; d.a -= 0.006;
+      d.x += d.vx; d.y += d.vy; d.vx *= 0.96; d.vy *= 0.97; d.r += d.grow; d.a -= 0.008;
       if (d.a <= 0) { this.dust.splice(i, 1); continue; }
       const g = c.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
       g.addColorStop(0, `rgba(232,214,180,${d.a})`);

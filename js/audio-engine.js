@@ -41,6 +41,7 @@ class GameAudioEngine {
     this.track2FadeRaf = 0;
     this.track1AudioFadeRaf = 0;
     this.chimeIndex = 0;
+    this.sharedNoiseBuf = null;
 
     this.shockwaveAudio = new Audio();
     this.shockwaveAudio.preload = 'none';
@@ -88,6 +89,13 @@ class GameAudioEngine {
       this.master = this.ctx.createGain();
       this.master.gain.value = this.tabMuted ? 0.0001 : 0.9;
       this.master.connect(this.ctx.destination);
+
+      // Pre-allocate 2s shared white-noise buffer once (zero per-SFX allocation)
+      const len = Math.floor(this.ctx.sampleRate * 2);
+      const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      this.sharedNoiseBuf = buf;
     }
     if (!this.tabMuted && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
@@ -113,15 +121,11 @@ class GameAudioEngine {
   }
 
   noise(duration, { type = 'bandpass', freq = 1200, q = 1, gain = 0.05, attack = 0.15, sweepTo = null, delay = 0, dest = null } = {}) {
-    if (!this.ctx) return;
+    if (!this.ctx || !this.sharedNoiseBuf) return;
     const target = dest || this.master;
     const t0 = this.ctx.currentTime + delay;
-    const len = Math.max(1, Math.floor(this.ctx.sampleRate * duration));
-    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     const src = this.ctx.createBufferSource();
-    src.buffer = buf;
+    src.buffer = this.sharedNoiseBuf;
     const f = this.ctx.createBiquadFilter();
     f.type = type;
     f.frequency.setValueAtTime(freq, t0);
@@ -132,7 +136,8 @@ class GameAudioEngine {
     g.gain.linearRampToValueAtTime(gain, t0 + duration * attack);
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
     src.connect(f); f.connect(g); g.connect(target);
-    src.start(t0); src.stop(t0 + duration + 0.02);
+    const maxOffset = Math.max(0, 2.0 - duration - 0.03);
+    src.start(t0, Math.random() * maxOffset, duration + 0.02);
   }
 
   tone(freq, duration, { type = 'sine', gain = 0.05, attack = 0.01, slideTo = null, delay = 0, lowpass = null, dest = null } = {}) {
@@ -578,25 +583,23 @@ class GameAudioEngine {
     this.tone(73.4, 0.9, { gain: 0.16, slideTo: 41 });
   }
 
-  /* Dedicated 5★ Character Reveal SFX (decoupled from FR<->EN language shockwave) */
+  /* Dedicated 5★ Character Reveal SFX (decoupled, lightweight 13-node chord) */
   playLegendaryReveal() {
     if (!this.sfxEnabled || this.tabMuted) return;
     if (this.playSample('legendary-reveal', 0.9)) return;
     if (!this.can()) return;
     const t0 = this.ctx.currentTime;
 
-    // 1. Crystalline burst shimmer + ascending D-Lydian celesta cascade
-    this.noise(0.55, { type: 'highpass', freq: 2200, q: 0.6, gain: 0.065, sweepTo: 8400, attack: 0.08 });
-    [1174.66, 1479.98, 1760, 2217.46, 2349.32, 2959.96].forEach((f, i) => {
-      const delay = i * 0.038;
-      this.tone(f, 0.9, { type: 'sine', gain: 0.042, attack: 0.008, delay });
-      this.tone(f * 2, 0.55, { type: 'sine', gain: 0.016, attack: 0.006, delay });
+    // 1. Crystalline burst shimmer + ascending D-Lydian celesta cascade (4 notes)
+    this.noise(0.5, { type: 'highpass', freq: 2200, q: 0.6, gain: 0.065, sweepTo: 8400, attack: 0.08 });
+    [1174.66, 1479.98, 1760, 2349.32].forEach((f, i) => {
+      this.tone(f, 0.85, { type: 'sine', gain: 0.044, attack: 0.008, delay: i * 0.048 });
     });
 
     // 2. Resonant D2 sub-bass impact
     this.tone(73.42, 0.95, { type: 'sine', gain: 0.20, attack: 0.015, slideTo: 36.71, delay: 0.02 });
 
-    // 3. Triumphant Dmaj9 brass/choir chord swell through swept lowpass filter
+    // 3. Triumphant Dmaj9 brass/choir chord swell (4 voices) through swept lowpass filter
     const swellFilter = this.ctx.createBiquadFilter();
     swellFilter.type = 'lowpass';
     swellFilter.Q.value = 0.85;
@@ -605,25 +608,23 @@ class GameAudioEngine {
     swellFilter.frequency.exponentialRampToValueAtTime(780, t0 + 1.85);
     const swellGain = this.ctx.createGain();
     swellGain.gain.setValueAtTime(0.0001, t0 + 0.02);
-    swellGain.gain.linearRampToValueAtTime(0.032, t0 + 0.24);
+    swellGain.gain.linearRampToValueAtTime(0.036, t0 + 0.24);
     swellGain.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.88);
     swellFilter.connect(swellGain);
     swellGain.connect(this.master);
 
-    [146.83, 220, 293.66, 369.99, 440, 659.25].forEach((freq) => {
-      [-0.004, 0.004].forEach((det) => {
-        const o = this.ctx.createOscillator();
-        o.type = det < 0 ? 'sawtooth' : 'triangle';
-        o.frequency.setValueAtTime(freq * (1 + det), t0 + 0.02);
-        o.connect(swellFilter);
-        o.start(t0 + 0.02);
-        o.stop(t0 + 1.92);
-      });
+    [146.83, 220, 369.99, 659.25].forEach((freq, idx) => {
+      const o = this.ctx.createOscillator();
+      o.type = idx % 2 === 0 ? 'sawtooth' : 'triangle';
+      o.frequency.setValueAtTime(freq, t0 + 0.02);
+      o.connect(swellFilter);
+      o.start(t0 + 0.02);
+      o.stop(t0 + 1.9);
     });
 
-    // 4. Radiant cathedral chime tail
-    this.bell(587.33, 1.9, 0.045, 0.14);
-    this.bell(880, 1.7, 0.038, 0.22);
+    // 4. Warm D5 cathedral bell tail (2 partials)
+    this.tone(587.33, 1.8, { gain: 0.042, delay: 0.14 });
+    this.tone(1621.0, 1.0, { gain: 0.022, delay: 0.14 });
   }
 
   playAchievementChime() {
